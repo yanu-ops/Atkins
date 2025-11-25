@@ -1,0 +1,35 @@
+.settings-container {
+    padding: 28px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .settings-form {
+    background: var(--white);
+    padding: 32px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+  }
+  
+  .settings-section {
+    margin-bottom: 32px;
+    padding-bottom: 28px;
+    border-bottom: 2px solid var(--lightest-grey);
+  }
+  
+  .settings-section:last-of-type {
+    border-bottom: none;
+  }
+  
+  .settings-section h3 {
+    margin: 0 0 24px 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
