@@ -9,7 +9,7 @@
   
   /* Sidebar */
   .sidebar {
-    width: 280px;
+    width: 250px;
     background: linear-gradient(180deg, var(--primary-dark) 0%, #0f0f0f 100%);
     color: var(--white);
     display: flex;
@@ -32,7 +32,7 @@
   }
   
   .sidebar.closed {
-    width: 85px;
+    width: 110px;
   }
   
 .sidebar-header {
