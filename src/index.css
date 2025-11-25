@@ -109,3 +109,75 @@ body {
     display: none !important;
   }
 }
+
+/* Add this at the end of your existing index.css */
+
+/* ============================================
+   GLOBAL PRINT STYLES
+   ============================================ */
+@media print {
+    /* Reset all margins and paddings */
+  * {
+      margin: 0;
+      padding: 0;
+  }
+  
+  html,
+  body {
+      width: 80mm;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      background: white;
+      overflow: visible;
+  }
+  
+    /* Hide everything by default */
+  body * {
+      visibility: hidden;
+  }
+  
+    /* Show only receipt */
+  .receipt-paper,
+  .receipt-paper * {
+      visibility: visible;
+  }
+  
+    /* Position receipt at top */
+  .receipt-container {
+      position: static;
+      padding: 0;
+      margin: 0;
+      background: white;
+  }
+  
+  .receipt-paper {
+      position: static;
+      margin: 0;
+      padding: 10mm 5mm;
+      box-shadow: none;
+      border: none;
+  }
+  
+    /* Hide all buttons */
+  button,
+  .btn,
+  .no-print {
+      display: none !important;
+  }
+  
+    /* Hide sidebar and navigation */
+  .sidebar,
+  .layout,
+  nav,
+  header,
+  footer {
+      display: none !important;
+  }
+  
+    /* Page settings for thermal printer */
+  @page {
+      size: 80mm auto;
+      margin: 0;
+  }
+}

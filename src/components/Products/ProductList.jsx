@@ -1,5 +1,5 @@
-// src/components/Products/ProductList.jsx - FIXED AUTO-REFRESH
-import { useState } from 'react';
+// src/components/Products/ProductList.jsx - WITH CATEGORY FILTER
+import { useState, useMemo } from 'react';
 import { useProducts } from '../../hooks/useProducts';
 import { formatCurrency } from '../../utils/formatters';
 import ProductForm from './ProductForm';
@@ -10,12 +10,47 @@ export default function ProductList() {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('active');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const filteredProducts = products.filter(product =>
+  // Get unique categories from products
+  const categories = useMemo(() => {
+    const categorySet = new Set(
+      products
+        .filter(p => p.category)
+        .map(p => p.category)
+    );
+    return ['all', ...Array.from(categorySet).sort()];
+  }, [products]);
+
+  // Filter by active/inactive status
+  const statusFilteredProducts = products.filter(product => 
+    activeTab === 'active' ? product.is_active : !product.is_active
+  );
+
+  // Filter by category
+  const categoryFilteredProducts = selectedCategory === 'all' 
+    ? statusFilteredProducts
+    : statusFilteredProducts.filter(product => product.category === selectedCategory);
+
+  // Filter by search query
+  const filteredProducts = categoryFilteredProducts.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.brand?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const activeCount = products.filter(p => p.is_active).length;
+  const inactiveCount = products.filter(p => !p.is_active).length;
+
+  // Get category count for current tab
+  const getCategoryCount = (category) => {
+    const tabProducts = products.filter(p => 
+      activeTab === 'active' ? p.is_active : !p.is_active
+    );
+    if (category === 'all') return tabProducts.length;
+    return tabProducts.filter(p => p.category === category).length;
+  };
 
   const handleAdd = () => {
     setEditingProduct(null);
@@ -37,11 +72,8 @@ export default function ProductList() {
     const result = await deleteProduct(product.id);
     
     if (result.success) {
-      // ✅ Success notification
       alert('Product deleted successfully!');
-      // ✅ Auto-refresh handled by hook
     } else {
-      // Check if error is about transactions
       if (result.error && result.error.includes('transaction')) {
         const markInactive = confirm(
           `Cannot delete "${product.name}" because it has transaction history.\n\nWould you like to mark it as inactive instead?\n\n(Inactive products won't show in POS but will remain in records)`
@@ -50,9 +82,8 @@ export default function ProductList() {
         if (markInactive) {
           const updateResult = await update(product.id, { is_active: false });
           if (updateResult.success) {
-            // ✅ Success notification
             alert('Product marked as inactive successfully!');
-            // ✅ Auto-refresh handled by hook
+            setActiveTab('inactive');
           } else {
             alert('Failed to mark product as inactive: ' + updateResult.error);
           }
@@ -72,9 +103,12 @@ export default function ProductList() {
     const result = await update(product.id, { is_active: newStatus });
     
     if (result.success) {
-      // ✅ Success notification
       alert(`Product ${action}d successfully!`);
-      // ✅ Auto-refresh handled by hook
+      if (newStatus) {
+        setActiveTab('active');
+      } else {
+        setActiveTab('inactive');
+      }
     } else {
       alert(`Failed to ${action} product: ` + result.error);
     }
@@ -83,7 +117,6 @@ export default function ProductList() {
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingProduct(null);
-    // ✅ Optional: Reload products when form closes
     reload();
   };
 
@@ -94,7 +127,7 @@ export default function ProductList() {
       <div className="page-header">
         <div>
           <h1>Products</h1>
-          <p>{products.length} total products ({products.filter(p => p.is_active).length} active)</p>
+          <p>{products.length} total products</p>
         </div>
         <div className="header-actions">
           <input
@@ -110,6 +143,44 @@ export default function ProductList() {
         </div>
       </div>
 
+      {/* Status Tabs */}
+      <div className="product-tabs">
+        <button 
+          className={`tab-button ${activeTab === 'active' ? 'active' : ''}`}
+          onClick={() => setActiveTab('active')}
+        >
+          ✅ Active Products
+          <span className="tab-count">{activeCount}</span>
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'inactive' ? 'active' : ''}`}
+          onClick={() => setActiveTab('inactive')}
+        >
+          ⛔ Inactive Products
+          <span className="tab-count">{inactiveCount}</span>
+        </button>
+      </div>
+
+      {/* Category Filter */}
+      <div className="category-filter">
+        <label className="filter-label">
+          <span className="filter-icon">🏷️</span>
+          Filter by Category:
+        </label>
+        <div className="category-buttons">
+          {categories.map(category => (
+            <button
+              key={category}
+              className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category === 'all' ? '📦 All Products' : category}
+              <span className="category-count">{getCategoryCount(category)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="products-grid-view">
         {filteredProducts.map(product => (
           <div key={product.id} className={`product-card-view ${!product.is_active ? 'inactive' : ''}`}>
@@ -121,9 +192,7 @@ export default function ProductList() {
               {product.image_url ? (
                 <img src={product.image_url} alt={product.name} />
               ) : (
-                <div className="product-image-placeholder">
-                  🎸
-                </div>
+                <div className="product-image-placeholder">🎸</div>
               )}
             </div>
             
@@ -159,20 +228,29 @@ export default function ProductList() {
                 </button>
                 
                 {product.is_active ? (
-                  <button
-                    onClick={() => handleDelete(product)}
-                    className="btn btn-danger btn-sm"
-                    title="Delete Product"
-                  >
-                    🗑️ Delete
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleToggleActive(product)}
+                      className="btn btn-warning btn-sm"
+                      title="Deactivate Product"
+                    >
+                      ⛔ Deactivate
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product)}
+                      className="btn btn-danger btn-sm"
+                      title="Delete Product"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </>
                 ) : (
                   <button
                     onClick={() => handleToggleActive(product)}
-                    className="btn btn-success btn-sm"
+                    className="btn btn-success btn-sm btn-block"
                     title="Activate Product"
                   >
-                    ✓ Activate
+                    ✅ Activate
                   </button>
                 )}
               </div>
@@ -183,15 +261,34 @@ export default function ProductList() {
 
       {filteredProducts.length === 0 && (
         <div className="no-results">
-          <p>No products found</p>
-          {searchQuery ? (
-            <button onClick={() => setSearchQuery('')} className="btn btn-secondary">
-              Clear Search
-            </button>
-          ) : (
+          <p>
+            {searchQuery 
+              ? `🔍 No products found matching "${searchQuery}"` 
+              : selectedCategory !== 'all'
+              ? `📦 No ${selectedCategory} products in ${activeTab} list`
+              : activeTab === 'active' 
+              ? '📦 No active products found' 
+              : '⛔ No inactive products found'}
+          </p>
+          {searchQuery || selectedCategory !== 'all' ? (
+            <div className="no-results-actions">
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="btn btn-secondary">
+                  Clear Search
+                </button>
+              )}
+              {selectedCategory !== 'all' && (
+                <button onClick={() => setSelectedCategory('all')} className="btn btn-secondary">
+                  Show All Categories
+                </button>
+              )}
+            </div>
+          ) : activeTab === 'active' ? (
             <button onClick={handleAdd} className="btn btn-primary">
               + Add Your First Product
             </button>
+          ) : (
+            <p className="hint-text">Deactivated products will appear here</p>
           )}
         </div>
       )}

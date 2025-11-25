@@ -1,10 +1,16 @@
-// src/components/POS/Receipt.jsx - Enhanced for Printing
+// src/components/POS/Receipt.jsx - OPTIMIZED FOR THERMAL PRINTER
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import './Receipt.css';
 
 export default function Receipt({ receipt, onNewTransaction }) {
   const handlePrint = () => {
-    window.print();
+    // Focus on window before printing
+    window.focus();
+    
+    // Small delay to ensure CSS is loaded
+    setTimeout(() => {
+      window.print();
+    }, 250);
   };
 
   return (
@@ -12,10 +18,10 @@ export default function Receipt({ receipt, onNewTransaction }) {
       <div className="receipt-paper" id="receipt">
         {/* Store Header */}
         <div className="receipt-header">
-          <h1>🎸 Atkins Guitar Store</h1>
+          <h1>ATKINS GUITAR STORE</h1>
           <p>123 Main Street, City</p>
-          <p>Contact: (123) 456-7890</p>
-          <p>Email: info@atkinsguitar.com</p>
+          <p>Tel: (123) 456-7890</p>
+          <p>info@atkinsguitar.com</p>
         </div>
 
         <div className="receipt-divider"></div>
@@ -23,11 +29,11 @@ export default function Receipt({ receipt, onNewTransaction }) {
         {/* Transaction Info */}
         <div className="receipt-info">
           <div className="info-row">
-            <span>Transaction #:</span>
+            <span>TXN #:</span>
             <strong>{receipt.transaction_number}</strong>
           </div>
           <div className="info-row">
-            <span>Date & Time:</span>
+            <span>Date:</span>
             <span>{formatDateTime(receipt.date)}</span>
           </div>
           <div className="info-row">
@@ -79,7 +85,7 @@ export default function Receipt({ receipt, onNewTransaction }) {
             <strong>{formatCurrency(receipt.total_amount)}</strong>
           </div>
           <div className="total-row">
-            <span>Amount Paid:</span>
+            <span>Paid ({receipt.payment_type}):</span>
             <strong>{formatCurrency(receipt.amount_paid)}</strong>
           </div>
           <div className="total-row change">
@@ -92,11 +98,11 @@ export default function Receipt({ receipt, onNewTransaction }) {
 
         {/* Footer */}
         <div className="receipt-footer">
-          <p className="thank-you">Thank you for your purchase!</p>
-          <p>Please come again</p>
+          <p className="thank-you">Thank You!</p>
+          <p>Please Come Again</p>
           <p>---</p>
-          <p>For inquiries and support:</p>
-          <p>Visit us or call (123) 456-7890</p>
+          <p>For inquiries:</p>
+          <p>(123) 456-7890</p>
           
           {receipt.notes && (
             <p className="receipt-notes">Note: {receipt.notes}</p>

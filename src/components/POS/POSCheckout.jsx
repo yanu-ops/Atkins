@@ -1,5 +1,5 @@
-// src/components/POS/POSCheckout.jsx - FIXED AUTO-REFRESH
-import { useState, useEffect } from 'react';
+// src/components/POS/POSCheckout.jsx - WITH CATEGORY FILTER
+import { useState, useEffect, useMemo } from 'react';
 import { useProducts } from '../../hooks/useProducts';
 import api from '../../services/apiService';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
@@ -7,9 +7,10 @@ import Receipt from './Receipt';
 import './POSCheckout.css';
 
 export default function POSCheckout() {
-  const { products, reload: reloadProducts } = useProducts(true); // ✅ Get reload function
+  const { products, reload: reloadProducts } = useProducts(true);
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [paymentType, setPaymentType] = useState('cash');
   const [amountPaid, setAmountPaid] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -19,6 +20,16 @@ export default function POSCheckout() {
   // Receipt state
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
+
+  // Get unique categories
+  const categories = useMemo(() => {
+    const categorySet = new Set(
+      products
+        .filter(p => p.category)
+        .map(p => p.category)
+    );
+    return ['all', ...Array.from(categorySet).sort()];
+  }, [products]);
 
   useEffect(() => {
     loadRecentTransactions();
@@ -31,11 +42,23 @@ export default function POSCheckout() {
     }
   };
 
-  const filtered = products.filter(p =>
+  // Filter by category first
+  const categoryFiltered = selectedCategory === 'all'
+    ? products
+    : products.filter(p => p.category === selectedCategory);
+
+  // Then filter by search
+  const filtered = categoryFiltered.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.category?.toLowerCase().includes(search.toLowerCase()) ||
     p.brand?.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Get category count
+  const getCategoryCount = (category) => {
+    if (category === 'all') return products.length;
+    return products.filter(p => p.category === category).length;
+  };
 
   const addToCart = (product) => {
     const existing = cart.find(item => item.id === product.id);
@@ -104,11 +127,9 @@ export default function POSCheckout() {
     setProcessing(false);
 
     if (result.success) {
-      // Get full transaction details for receipt
       const transactionDetails = await api.transactions.getById(result.data.transaction_id);
       
       if (transactionDetails.success) {
-        // Prepare receipt data
         const receipt = {
           transaction_number: transactionDetails.data.transaction_number,
           date: transactionDetails.data.created_at,
@@ -130,14 +151,9 @@ export default function POSCheckout() {
         setShowReceipt(true);
       }
 
-      // Clear cart
       setCart([]);
       setAmountPaid('');
-      
-      // ✅ RELOAD PRODUCTS (to update stock quantities)
       await reloadProducts();
-      
-      // Reload recent transactions
       loadRecentTransactions();
     } else {
       alert('Checkout failed: ' + result.error);
@@ -147,8 +163,6 @@ export default function POSCheckout() {
   const handleNewTransaction = async () => {
     setShowReceipt(false);
     setReceiptData(null);
-    
-    // ✅ RELOAD PRODUCTS when starting new transaction
     await reloadProducts();
   };
 
@@ -180,7 +194,6 @@ export default function POSCheckout() {
     }
   };
 
-  // If showing receipt, display Receipt component
   if (showReceipt && receiptData) {
     return <Receipt receipt={receiptData} onNewTransaction={handleNewTransaction} />;
   }
@@ -190,7 +203,7 @@ export default function POSCheckout() {
       {/* Products Section */}
       <div className="pos-products">
         <div className="pos-header">
-          <h2>Products</h2>
+          <h2>Products ({filtered.length})</h2>
           <input
             type="text"
             placeholder="Search products..."
@@ -199,33 +212,67 @@ export default function POSCheckout() {
             className="search-input"
           />
         </div>
+
+        {/* Category Filter for POS */}
+        <div className="pos-category-filter">
+          {categories.map(category => (
+            <button
+              key={category}
+              className={`pos-category-btn ${selectedCategory === category ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category === 'all' ? '📦 All' : category}
+              <span className="pos-category-count">{getCategoryCount(category)}</span>
+            </button>
+          ))}
+        </div>
         
         <div className="products-grid">
-          {filtered.map(product => (
-            <div
-              key={product.id}
-              className="product-card-pos"
-              onClick={() => addToCart(product)}
-            >
-              <div className="product-image-pos">
-                {product.image_url ? (
-                  <img src={product.image_url} alt={product.name} />
-                ) : (
-                  <div className="product-placeholder">🎸</div>
-                )}
-              </div>
-              <div className="product-info-pos">
-                <strong>{product.name}</strong>
-                <span className="product-brand-pos">{product.brand}</span>
-                <div className="product-footer-pos">
-                  <span className="price-pos">{formatCurrency(product.price)}</span>
-                  <span className={`stock-badge-pos ${product.stock < 5 ? 'low' : ''}`}>
-                    {product.stock} in stock
-                  </span>
+          {filtered.length === 0 ? (
+            <div className="no-products-found">
+              <p>🔍 No products found</p>
+              {(search || selectedCategory !== 'all') && (
+                <div className="clear-filters">
+                  {search && (
+                    <button onClick={() => setSearch('')} className="btn btn-sm btn-secondary">
+                      Clear Search
+                    </button>
+                  )}
+                  {selectedCategory !== 'all' && (
+                    <button onClick={() => setSelectedCategory('all')} className="btn btn-sm btn-secondary">
+                      Show All Categories
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            filtered.map(product => (
+              <div
+                key={product.id}
+                className="product-card-pos"
+                onClick={() => addToCart(product)}
+              >
+                <div className="product-image-pos">
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.name} />
+                  ) : (
+                    <div className="product-placeholder">🎸</div>
+                  )}
+                </div>
+                <div className="product-info-pos">
+                  <strong>{product.name}</strong>
+                  <span className="product-brand-pos">{product.brand}</span>
+                  <div className="product-footer-pos">
+                    <span className="price-pos">{formatCurrency(product.price)}</span>
+                    <span className={`stock-badge-pos ${product.stock < 5 ? 'low' : ''}`}>
+                      {product.stock} in stock
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 

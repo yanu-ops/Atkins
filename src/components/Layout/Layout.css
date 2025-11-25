@@ -349,3 +349,34 @@
       transform: translateX(-100%);
     }
   }
+
+  /* Add this to your existing Layout.css at the end */
+
+/* ============================================
+   PRINT STYLES - HIDE SIDEBAR
+   ============================================ */
+@media print {
+    .sidebar {
+      display: none !important;
+}
+  
+    .main-content {
+      margin-left: 0 !important;
+      width: 100% !important;
+}
+  
+/* Hide all navigation and UI elements */
+    .layout {
+      display: block !important;
+    }
+  
+    /* Only show receipt content */
+    body * {
+      visibility: hidden;
+    }
+  
+    .receipt-paper,
+    .receipt-paper * {
+      visibility: visible;
+    }
+}
