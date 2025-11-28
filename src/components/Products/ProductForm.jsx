@@ -1,4 +1,3 @@
-// src/components/Products/ProductForm.jsx - FIXED AUTO-REFRESH
 import { useState, useEffect } from 'react';
 import { useProducts } from '../../hooks/useProducts';
 import './ProductForm.css';
@@ -64,23 +63,18 @@ export default function ProductForm({ product, onClose }) {
 
     let result;
     if (product) {
-      // ✅ UPDATE PRODUCT
       result = await update(product.id, submitData);
     } else {
-      // ✅ CREATE PRODUCT
       result = await create(submitData);
     }
 
     setLoading(false);
 
     if (result.success) {
-      // ✅ Show success message
       alert(`Product ${product ? 'updated' : 'created'} successfully!`);
       
-      // ✅ Close form (this triggers reload in parent)
       onClose();
       
-      // ✅ Auto-refresh is handled by the hook
     } else {
       alert('Operation failed: ' + result.error);
     }
@@ -95,7 +89,7 @@ export default function ProductForm({ product, onClose }) {
         </div>
 
         <form onSubmit={handleSubmit} className="product-form">
-          {/* Image Preview */}
+
           <div className="image-preview-section">
             {imagePreview ? (
               <img src={imagePreview} alt="Preview" className="image-preview" />
@@ -107,7 +101,6 @@ export default function ProductForm({ product, onClose }) {
             )}
           </div>
 
-          {/* Image URL */}
           <div className="form-group">
             <label htmlFor="image_url">Product Image URL</label>
             <input

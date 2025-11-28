@@ -1,17 +1,14 @@
-// src/hooks/useAuth.js
 import { useState, useEffect } from 'react';
 import api from '../services/apiService';
 
-/**
- * Custom hook for authentication
- * Manages user state and authentication operations
- */
+
+
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check authentication status on mount
+
   useEffect(() => {
     checkAuth();
   }, []);

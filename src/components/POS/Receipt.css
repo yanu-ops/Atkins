@@ -1,5 +1,3 @@
-/* src/components/POS/Receipt.css - THERMAL PRINTER OPTIMIZED (80mm) */
-
 .receipt-container {
     display: flex;
     flex-direction: column;
@@ -12,7 +10,7 @@
   .receipt-paper {
     background: white;
     width: 100%;
-    max-width: 302px; /* 80mm = 3.15 inches = 302px */
+    max-width: 302px; 
     padding: 20px 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     font-family: 'Courier New', monospace;
@@ -104,7 +102,6 @@
     text-align: right;
   }
   
-  /* Make item names wrap properly */
   .receipt-items td:first-child {
     max-width: 140px;
     word-wrap: break-word;
@@ -229,11 +226,8 @@
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
   }
   
-  /* ============================================
-     PRINT STYLES - THERMAL PRINTER (80mm)
-     ============================================ */
+  
   @media print {
-    /* Hide everything except receipt */
     body * {
       visibility: hidden;
     }
@@ -247,7 +241,7 @@
       position: absolute;
       left: 0;
       top: 0;
-      width: 80mm !important; /* Thermal printer width */
+      width: 80mm !important; 
       max-width: 80mm !important;
       margin: 0;
       padding: 10mm 5mm;
@@ -256,14 +250,12 @@
       background: white;
     }
   
-    /* Hide buttons and non-printable elements */
     .no-print,
     .receipt-actions,
     button {
       display: none !important;
     }
   
-    /* Remove background */
     body {
       background: white;
       margin: 0;
@@ -276,7 +268,7 @@
       min-height: auto;
     }
   
-    /* Optimize text for thermal printer */
+
     .receipt-paper {
       font-size: 11px;
     }
@@ -297,14 +289,12 @@
       font-size: 14px;
     }
   
-    /* Force black text for thermal printer */
     * {
       color: #000 !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
   
-    /* Remove unnecessary spacing */
     .receipt-header {
       margin-bottom: 10px;
       padding-bottom: 8px;
@@ -332,21 +322,21 @@
       padding-top: 8px;
     }
   
-    /* Prevent page breaks in important sections */
+  
     .receipt-header,
     .receipt-info,
     .receipt-totals {
       page-break-inside: avoid;
     }
   
-    /* No page margins for thermal printer */
+   
     @page {
-      size: 80mm auto; /* Width fixed, height auto */
+      size: 80mm auto; 
       margin: 0;
     }
   }
   
-  /* Responsive for screen view */
+ 
   @media (max-width: 768px) {
     .receipt-paper {
       max-width: 100%;

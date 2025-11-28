@@ -1,4 +1,3 @@
-// src/components/Transactions/TransactionList.jsx - With Reprint
 import { useState, useEffect } from 'react';
 import api from '../../services/apiService';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
@@ -11,7 +10,6 @@ export default function TransactionList() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   
-  // Receipt state
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
 
@@ -71,7 +69,6 @@ export default function TransactionList() {
 
   if (loading) return <div className="loading">Loading...</div>;
 
-  // Show receipt if requested
   if (showReceipt && receiptData) {
     return <Receipt receipt={receiptData} onNewTransaction={handleCloseReceipt} />;
   }
@@ -136,7 +133,6 @@ export default function TransactionList() {
         </table>
       </div>
 
-      {/* Transaction Details Modal */}
       {showDetails && selectedTransaction && (
         <div className="modal-overlay" onClick={() => setShowDetails(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

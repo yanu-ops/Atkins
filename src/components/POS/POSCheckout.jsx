@@ -1,4 +1,3 @@
-// src/components/POS/POSCheckout.jsx - WITH CATEGORY FILTER
 import { useState, useEffect, useMemo } from 'react';
 import { useProducts } from '../../hooks/useProducts';
 import api from '../../services/apiService';
@@ -17,11 +16,11 @@ export default function POSCheckout() {
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   
-  // Receipt state
+
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
 
-  // Get unique categories
+
   const categories = useMemo(() => {
     const categorySet = new Set(
       products
@@ -42,19 +41,19 @@ export default function POSCheckout() {
     }
   };
 
-  // Filter by category first
+
   const categoryFiltered = selectedCategory === 'all'
     ? products
     : products.filter(p => p.category === selectedCategory);
 
-  // Then filter by search
+
   const filtered = categoryFiltered.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.category?.toLowerCase().includes(search.toLowerCase()) ||
     p.brand?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Get category count
+
   const getCategoryCount = (category) => {
     if (category === 'all') return products.length;
     return products.filter(p => p.category === category).length;
@@ -200,7 +199,6 @@ export default function POSCheckout() {
 
   return (
     <div className="pos-container">
-      {/* Products Section */}
       <div className="pos-products">
         <div className="pos-header">
           <h2>Products ({filtered.length})</h2>
@@ -213,7 +211,6 @@ export default function POSCheckout() {
           />
         </div>
 
-        {/* Category Filter for POS */}
         <div className="pos-category-filter">
           {categories.map(category => (
             <button
@@ -276,7 +273,6 @@ export default function POSCheckout() {
         </div>
       </div>
 
-      {/* Cart Section */}
       <div className="pos-cart">
         <h2>Cart ({cart.length})</h2>
         

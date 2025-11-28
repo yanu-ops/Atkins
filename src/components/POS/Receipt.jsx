@@ -1,32 +1,65 @@
-// src/components/POS/Receipt.jsx - OPTIMIZED FOR THERMAL PRINTER
+import { useState, useEffect } from 'react';
+import api from '../../services/apiService';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import './Receipt.css';
 
 export default function Receipt({ receipt, onNewTransaction }) {
+  const [settings, setSettings] = useState(null);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    const result = await api.settings.get();
+    if (result.success) {
+      setSettings(result.data);
+    } else {
+      setSettings({
+        store_name: 'Atkins Guitar Store',
+        store_address: '123 Main Street, City',
+        store_phone: '(123) 456-7890',
+        store_email: 'info@atkinsguitar.com',
+        receipt_footer: 'Thank you for your purchase!'
+      });
+    }
+    setLoadingSettings(false);
+  };
+
   const handlePrint = () => {
-    // Focus on window before printing
     window.focus();
-    
-    // Small delay to ensure CSS is loaded
     setTimeout(() => {
       window.print();
     }, 250);
   };
 
+  if (loadingSettings) {
+    return (
+      <div className="receipt-container">
+        <div className="loading">Loading receipt...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="receipt-container">
       <div className="receipt-paper" id="receipt">
-        {/* Store Header */}
         <div className="receipt-header">
-          <h1>ATKINS GUITAR STORE</h1>
-          <p>123 Main Street, City</p>
-          <p>Tel: (123) 456-7890</p>
-          <p>info@atkinsguitar.com</p>
+          <h1>{settings?.store_name?.toUpperCase() || 'ATKINS GUITAR STORE'}</h1>
+          {settings?.store_address && (
+            <p>{settings.store_address}</p>
+          )}
+          {settings?.store_phone && (
+            <p>Tel: {settings.store_phone}</p>
+          )}
+          {settings?.store_email && (
+            <p>{settings.store_email}</p>
+          )}
         </div>
 
         <div className="receipt-divider"></div>
 
-        {/* Transaction Info */}
         <div className="receipt-info">
           <div className="info-row">
             <span>TXN #:</span>
@@ -48,7 +81,6 @@ export default function Receipt({ receipt, onNewTransaction }) {
 
         <div className="receipt-divider"></div>
 
-        {/* Items Table */}
         <div className="receipt-items">
           <table>
             <thead>
@@ -74,7 +106,6 @@ export default function Receipt({ receipt, onNewTransaction }) {
 
         <div className="receipt-divider"></div>
 
-        {/* Totals */}
         <div className="receipt-totals">
           <div className="total-row">
             <span>Subtotal:</span>
@@ -96,26 +127,27 @@ export default function Receipt({ receipt, onNewTransaction }) {
 
         <div className="receipt-divider"></div>
 
-        {/* Footer */}
         <div className="receipt-footer">
-          <p className="thank-you">Thank You!</p>
+          <p className="thank-you">
+            {settings?.receipt_footer || 'Thank You!'}
+          </p>
           <p>Please Come Again</p>
           <p>---</p>
-          <p>For inquiries:</p>
-          <p>(123) 456-7890</p>
+          {settings?.store_phone && (
+            <p>For inquiries: {settings.store_phone}</p>
+          )}
           
           {receipt.notes && (
             <p className="receipt-notes">Note: {receipt.notes}</p>
           )}
         </div>
 
-        {/* Barcode/Transaction Number */}
+
         <div className="receipt-barcode">
           <p>* {receipt.transaction_number} *</p>
         </div>
       </div>
 
-      {/* Action Buttons - Hidden when printing */}
       <div className="receipt-actions no-print">
         <button onClick={handlePrint} className="btn btn-print">
           🖨️ Print Receipt

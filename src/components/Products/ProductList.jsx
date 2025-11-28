@@ -1,4 +1,3 @@
-// src/components/Products/ProductList.jsx - WITH CATEGORY FILTER
 import { useState, useMemo } from 'react';
 import { useProducts } from '../../hooks/useProducts';
 import { formatCurrency } from '../../utils/formatters';
@@ -13,7 +12,6 @@ export default function ProductList() {
   const [activeTab, setActiveTab] = useState('active');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Get unique categories from products
   const categories = useMemo(() => {
     const categorySet = new Set(
       products
@@ -23,17 +21,14 @@ export default function ProductList() {
     return ['all', ...Array.from(categorySet).sort()];
   }, [products]);
 
-  // Filter by active/inactive status
   const statusFilteredProducts = products.filter(product => 
     activeTab === 'active' ? product.is_active : !product.is_active
   );
 
-  // Filter by category
   const categoryFilteredProducts = selectedCategory === 'all' 
     ? statusFilteredProducts
     : statusFilteredProducts.filter(product => product.category === selectedCategory);
 
-  // Filter by search query
   const filteredProducts = categoryFilteredProducts.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -43,7 +38,6 @@ export default function ProductList() {
   const activeCount = products.filter(p => p.is_active).length;
   const inactiveCount = products.filter(p => !p.is_active).length;
 
-  // Get category count for current tab
   const getCategoryCount = (category) => {
     const tabProducts = products.filter(p => 
       activeTab === 'active' ? p.is_active : !p.is_active
@@ -143,7 +137,6 @@ export default function ProductList() {
         </div>
       </div>
 
-      {/* Status Tabs */}
       <div className="product-tabs">
         <button 
           className={`tab-button ${activeTab === 'active' ? 'active' : ''}`}
@@ -161,7 +154,6 @@ export default function ProductList() {
         </button>
       </div>
 
-      {/* Category Filter */}
       <div className="category-filter">
         <label className="filter-label">
           <span className="filter-icon">🏷️</span>
@@ -293,7 +285,6 @@ export default function ProductList() {
         </div>
       )}
 
-      {/* Product Form Modal */}
       {showForm && (
         <ProductForm
           product={editingProduct}

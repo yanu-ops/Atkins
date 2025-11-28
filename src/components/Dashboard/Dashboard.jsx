@@ -1,4 +1,3 @@
-// src/components/Dashboard/Dashboard.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/apiService';
@@ -17,13 +16,13 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     setLoading(true);
 
-    // Load dashboard stats
+
     const statsResult = await api.reports.getDashboardStats();
     if (statsResult.success) {
       setStats(statsResult.data);
     }
 
-    // Load low stock products
+
     const lowStockResult = await api.products.getLowStock();
     if (lowStockResult.success) {
       setLowStock(lowStockResult.data);
@@ -48,7 +47,7 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Main Stats Cards */}
+
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon primary">💰</div>
@@ -83,7 +82,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Secondary Stats */}
+
       <div className="stats-grid-secondary">
         <div className="stat-card-small">
           <p className="stat-label">This Week</p>
@@ -101,7 +100,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Low Stock Alert */}
       {lowStock.length > 0 && (
         <div className="section-card">
           <div className="section-header">
@@ -141,7 +139,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Quick Actions */}
+
       <div className="section-card">
         <div className="section-header">
           <h2>Quick Actions</h2>

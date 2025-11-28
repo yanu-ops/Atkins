@@ -1,16 +1,14 @@
-// src/hooks/useProducts.js - FIXED AUTO-REFRESH
+
 import { useState, useEffect } from 'react';
 import api from '../services/apiService';
 
-/**
- * Custom hook for products management with auto-refresh
- */
+
 export function useProducts(activeOnly = false) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load products on mount and when activeOnly changes
+
   useEffect(() => {
     loadProducts();
   }, [activeOnly]);
@@ -35,7 +33,7 @@ export function useProducts(activeOnly = false) {
   const createProduct = async (productData) => {
     const result = await api.products.create(productData);
     if (result.success) {
-      // ✅ AUTO-REFRESH: Reload products after create
+
       await loadProducts();
     }
     return result;
@@ -44,7 +42,7 @@ export function useProducts(activeOnly = false) {
   const updateProduct = async (id, productData) => {
     const result = await api.products.update(id, productData);
     if (result.success) {
-      // ✅ AUTO-REFRESH: Reload products after update
+    
       await loadProducts();
     }
     return result;
@@ -53,7 +51,7 @@ export function useProducts(activeOnly = false) {
   const deleteProduct = async (id) => {
     const result = await api.products.delete(id);
     if (result.success) {
-      // ✅ AUTO-REFRESH: Reload products after delete
+  
       await loadProducts();
     }
     return result;
@@ -74,7 +72,7 @@ export function useProducts(activeOnly = false) {
     products,
     loading,
     error,
-    reload: loadProducts, // Manual reload if needed
+    reload: loadProducts, 
     create: createProduct,
     update: updateProduct,
     delete: deleteProduct,

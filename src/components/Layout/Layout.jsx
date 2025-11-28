@@ -1,4 +1,3 @@
-// src/components/Layout/Layout.jsx
 import { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -27,12 +26,11 @@ export default function Layout() {
 
   return (
     <div className="layout">
-      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <div className="logo">
             <div className="logo-icon">📊</div>
-            {sidebarOpen && <h2>POS System</h2>}
+            {sidebarOpen && <h2>ATKINS POS</h2>}
           </div>
           <button onClick={toggleSidebar} className="toggle-btn">
             {sidebarOpen ? '◀' : '▶'}
@@ -100,7 +98,6 @@ export default function Layout() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className={`main-content ${sidebarOpen ? '' : 'expanded'}`}>
         <Outlet />
       </main>

@@ -1,4 +1,3 @@
-// src/components/Users/Users.jsx
 import { useState, useEffect } from 'react';
 import api from '../../services/apiService';
 import './Users.css';
@@ -7,11 +6,12 @@ export default function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     password: '',
     name: '',
-    role: 'employee'
+    role: 'employee' 
   });
 
   useEffect(() => {
@@ -28,27 +28,85 @@ export default function Users() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await api.users.create(formData);
+    
+    if (!formData.name.trim()) {
+      alert('Please enter a name');
+      return;
+    }
+    
+    if (!formData.username.trim()) {
+      alert('Please enter a username');
+      return;
+    }
+    
+    if (!formData.password || formData.password.length < 6) {
+      alert('Password must be at least 6 characters');
+      return;
+    }
+    
+    setSubmitting(true);
+    
+    const userData = {
+      ...formData,
+      role: 'employee'
+    };
+    
+    const result = await api.users.create(userData);
+    setSubmitting(false);
     
     if (result.success) {
-      alert('User created successfully!');
+      alert('✅ Employee account created successfully! They can now login.');
       setShowForm(false);
       setFormData({ username: '', password: '', name: '', role: 'employee' });
       loadUsers();
     } else {
-      alert('Failed to create user: ' + result.error);
+      alert('❌ Failed to create user:\n\n' + result.error);
     }
   };
 
-  const handleDeactivate = async (userId) => {
-    if (!confirm('Deactivate this user?')) return;
+  const handleDelete = async (user) => {
+    const currentUser = JSON.parse(localStorage.getItem('pos_user') || '{}');
     
-    const result = await api.users.deactivate(userId);
+    if (user.id === currentUser.id) {
+      alert('❌ You cannot delete your own account!');
+      return;
+    }
+
+    if (user.role === 'admin') {
+      alert('❌ Cannot delete admin accounts!');
+      return;
+    }
+
+    const confirmDelete = confirm(
+      `⚠️ DELETE USER?\n\n` +
+      `Name: ${user.name}\n` +
+      `Username: ${user.username}\n` +
+      `Role: ${user.role}\n\n` +
+      `This action CANNOT be undone!\n\n` +
+      `Are you sure you want to permanently delete this user?`
+    );
+    
+    if (!confirmDelete) return;
+
+    const doubleConfirm = confirm(
+      `⚠️ FINAL CONFIRMATION\n\n` +
+      `Click OK to permanently delete "${user.name}"`
+    );
+
+    if (!doubleConfirm) return;
+
+    const result = await api.users.delete(user.id);
+    
     if (result.success) {
-      alert('User deactivated');
+      alert('✅ User deleted successfully');
       loadUsers();
+    } else {
+      alert('❌ Failed to delete user:\n\n' + result.error);
     }
   };
+
+  const adminCount = users.filter(u => u.role === 'admin').length;
+  const employeeCount = users.filter(u => u.role === 'employee').length;
 
   if (loading) return <div className="loading">Loading users...</div>;
 
@@ -57,12 +115,16 @@ export default function Users() {
       <div className="page-header">
         <div>
           <h1>User Management</h1>
-          <p>Manage employee accounts</p>
+          <p>
+            {adminCount} admin{adminCount !== 1 ? 's' : ''} · {' '}
+            {employeeCount} employee{employeeCount !== 1 ? 's' : ''}
+          </p>
         </div>
         <button onClick={() => setShowForm(true)} className="btn btn-primary">
-          + Add User
+          + Add Employee
         </button>
       </div>
+
 
       <div className="users-table-wrapper">
         <table className="table">
@@ -93,13 +155,18 @@ export default function Users() {
                 </td>
                 <td>{new Date(user.created_at).toLocaleDateString()}</td>
                 <td>
-                  {user.is_active && (
+                  {user.role === 'employee' ? (
                     <button
-                      onClick={() => handleDeactivate(user.id)}
+                      onClick={() => handleDelete(user)}
                       className="btn btn-sm btn-danger"
+                      title="Delete User"
                     >
-                      Deactivate
+                      🗑️ Delete
                     </button>
+                  ) : (
+                    <span className="protected-badge" title="Admin accounts cannot be deleted">
+                      🔒 Protected
+                    </span>
                   )}
                 </td>
               </tr>
@@ -108,12 +175,11 @@ export default function Users() {
         </table>
       </div>
 
-      {/* Add User Modal */}
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Add New User</h2>
+              <h2>Add New Employee</h2>
               <button onClick={() => setShowForm(false)} className="close-btn">✕</button>
             </div>
 
@@ -126,6 +192,8 @@ export default function Users() {
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   required
                   placeholder="John Doe"
+                  disabled={submitting}
+                  autoFocus
                 />
               </div>
 
@@ -134,10 +202,12 @@ export default function Users() {
                 <input
                   type="text"
                   value={formData.username}
-                  onChange={(e) => setFormData({...formData, username: e.target.value})}
+                  onChange={(e) => setFormData({...formData, username: e.target.value.toLowerCase().trim()})}
                   required
                   placeholder="johndoe"
+                  disabled={submitting}
                 />
+                <small>Lowercase, no spaces. This will be used for login.</small>
               </div>
 
               <div className="form-group">
@@ -149,26 +219,34 @@ export default function Users() {
                   required
                   placeholder="Min. 6 characters"
                   minLength="6"
+                  disabled={submitting}
                 />
+                <small>Minimum 6 characters. Employee will use this to login.</small>
               </div>
 
               <div className="form-group">
-                <label>Role *</label>
-                <select
-                  value={formData.role}
-                  onChange={(e) => setFormData({...formData, role: e.target.value})}
-                >
-                  <option value="employee">Employee</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <label>Role</label>
+                <div className="role-display">
+                  <span className="badge badge-employee">EMPLOYEE</span>
+                  <small>All new accounts are created as employees</small>
+                </div>
               </div>
 
               <div className="form-actions">
-                <button type="button" onClick={() => setShowForm(false)} className="btn btn-secondary">
+                <button 
+                  type="button" 
+                  onClick={() => setShowForm(false)} 
+                  className="btn btn-secondary"
+                  disabled={submitting}
+                >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Create User
+                <button 
+                  type="submit" 
+                  className="btn btn-primary"
+                  disabled={submitting}
+                >
+                  {submitting ? 'Creating Employee...' : 'Create Employee Account'}
                 </button>
               </div>
             </form>

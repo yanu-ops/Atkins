@@ -1,8 +1,3 @@
-// src/utils/formatters.js
-
-/**
- * Format number as Philippine Peso currency
- */
 export const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
@@ -12,9 +7,7 @@ export const formatCurrency = (amount) => {
     }).format(amount || 0);
   };
   
-  /**
-   * Format date and time
-   */
+  
   export const formatDateTime = (date) => {
     if (!date) return '';
     return new Date(date).toLocaleString('en-PH', {
@@ -26,9 +19,7 @@ export const formatCurrency = (amount) => {
     });
   };
   
-  /**
-   * Format date only
-   */
+ 
   export const formatDate = (date) => {
     if (!date) return '';
     return new Date(date).toLocaleDateString('en-PH', {
@@ -38,9 +29,7 @@ export const formatCurrency = (amount) => {
     });
   };
   
-  /**
-   * Format time only
-   */
+ 
   export const formatTime = (date) => {
     if (!date) return '';
     return new Date(date).toLocaleTimeString('en-PH', {
@@ -49,16 +38,12 @@ export const formatCurrency = (amount) => {
     });
   };
   
-  /**
-   * Format number with commas
-   */
+  
   export const formatNumber = (num) => {
     return new Intl.NumberFormat('en-PH').format(num || 0);
   };
   
-  /**
-   * Truncate long text
-   */
+
   export const truncateText = (text, maxLength = 50) => {
     if (!text) return '';
     if (text.length <= maxLength) return text;

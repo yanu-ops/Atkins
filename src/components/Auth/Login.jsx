@@ -1,4 +1,3 @@
-// src/components/Auth/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -33,7 +32,7 @@ export default function Login() {
       <div className="login-card">
         <div className="login-header">
           <div className="login-icon">📊</div>
-          <h1>POS System</h1>
+          <h1>ATKINS</h1>
           <p>Point of Sale Management</p>
         </div>
 
@@ -78,11 +77,6 @@ export default function Login() {
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
-
-          <div className="login-footer">
-            <p className="hint">Default credentials:</p>
-            <p className="hint"><strong>admin</strong> / <strong>admin123</strong></p>
-          </div>
         </form>
       </div>
 

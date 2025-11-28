@@ -1,5 +1,3 @@
-/* src/components/Layout/Layout.css - Modern Sidebar */
-
 .layout {
     display: flex;
     height: 100vh;
@@ -7,7 +5,7 @@
     background: var(--lightest-grey);
   }
   
-  /* Sidebar */
+
   .sidebar {
     width: 250px;
     background: linear-gradient(180deg, var(--primary-dark) 0%, #0f0f0f 100%);
@@ -36,22 +34,22 @@
   }
   
 .sidebar-header {
-    padding: 24px 16px;  /* Reduced horizontal padding */
+    padding: 24px 16px; 
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative;
     z-index: 1;
-    gap: 12px;  /* Add gap */
+    gap: 12px; 
 }
   
 .logo {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex: 1;  /* Add this */
-    min-width: 0;  /* Add this */
+    flex: 1;  
+    min-width: 0;  
 }
   
   .logo-icon {
@@ -100,7 +98,7 @@
     margin: 0 auto;
   }
   
-  /* User Info */
+
   .user-info {
     padding: 22px 20px;
     display: flex;
@@ -157,7 +155,7 @@
     display: none;
   }
   
-  /* Sidebar Navigation */
+
   .sidebar-nav {
     flex: 1;
     padding: 20px 0;
@@ -238,7 +236,7 @@
     margin: 16px 12px;
   }
   
-  /* Sidebar Footer */
+ 
   .sidebar-footer {
     padding: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -278,7 +276,7 @@
     display: none;
   }
   
-  /* Main Content */
+
   .main-content {
     flex: 1;
     overflow-y: auto;
@@ -290,7 +288,7 @@
     margin-left: 0;
   }
   
-  /* Loading Screen */
+
   .loading-screen {
     display: flex;
     flex-direction: column;
@@ -303,7 +301,7 @@
     gap: 20px;
   }
   
-  /* Responsive */
+
   @media (max-width: 1024px) {
     .sidebar {
       position: fixed;
@@ -350,11 +348,6 @@
     }
   }
 
-  /* Add this to your existing Layout.css at the end */
-
-/* ============================================
-   PRINT STYLES - HIDE SIDEBAR
-   ============================================ */
 @media print {
     .sidebar {
       display: none !important;
@@ -365,12 +358,10 @@
       width: 100% !important;
 }
   
-/* Hide all navigation and UI elements */
     .layout {
       display: block !important;
     }
   
-    /* Only show receipt content */
     body * {
       visibility: hidden;
     }

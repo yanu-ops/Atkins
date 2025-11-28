@@ -1,4 +1,3 @@
-// src/components/Reports/Reports.jsx
 import { useState, useEffect } from 'react';
 import api from '../../services/apiService';
 import { formatCurrency, formatDate } from '../../utils/formatters';
@@ -20,7 +19,6 @@ export default function Reports() {
   const loadReports = async () => {
     setLoading(true);
 
-    // Load sales summary
     const statsResult = await api.reports.getSalesSummary(
       dateRange.start,
       dateRange.end
@@ -29,7 +27,6 @@ export default function Reports() {
       setStats(statsResult.data);
     }
 
-    // Load top products
     const topResult = await api.reports.getTopProducts(10, dateRange.start, dateRange.end);
     if (topResult.success) {
       setTopProducts(topResult.data);
@@ -51,7 +48,6 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Date Range Filter */}
       <div className="filters-card">
         <h3>Date Range</h3>
         <div className="date-inputs">
@@ -77,7 +73,6 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Sales Summary */}
       <div className="stats-grid">
         <div className="stat-card-report">
           <div className="stat-icon">💰</div>
@@ -104,7 +99,6 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Payment Breakdown */}
       <div className="section-card">
         <h3>Payment Methods Breakdown</h3>
         <div className="payment-grid">
@@ -123,7 +117,6 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Top Products */}
       <div className="section-card">
         <h3>Top Selling Products</h3>
         <table className="table">

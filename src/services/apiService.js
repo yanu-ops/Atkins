@@ -1,12 +1,7 @@
-// src/services/apiService.js
 import { supabase, handleSupabaseError } from '../lib/supabaseClient';
 
-// ============================================
-// AUTHENTICATION
-// ============================================
 
 export const authService = {
-  // Login user
   login: async (username, password) => {
     try {
       const { data, error } = await supabase
@@ -27,7 +22,6 @@ export const authService = {
         throw new Error('Invalid username or password');
       }
 
-      // Store user in localStorage
       const userData = {
         id: user.user_id,
         username: user.username,
@@ -47,13 +41,11 @@ export const authService = {
     }
   },
 
-  // Logout user
   logout: () => {
     localStorage.removeItem('pos_user');
     return { success: true };
   },
 
-  // Get current user from localStorage
   getCurrentUser: () => {
     try {
       const userStr = localStorage.getItem('pos_user');
@@ -63,21 +55,13 @@ export const authService = {
     }
   },
 
-  // Check if user is authenticated
   isAuthenticated: () => {
     return authService.getCurrentUser() !== null;
   }
 };
 
-// ============================================
-// USERS MANAGEMENT
-// ============================================
-
-// src/services/apiService.js - UPDATED USERS SERVICE
-// Find the usersService section and replace the create function:
 
 export const usersService = {
-
     getAll: async () => {
       try {
         const { data, error } = await supabase
@@ -92,14 +76,12 @@ export const usersService = {
       }
     },
   
-create: async (userData) => {
+    create: async (userData) => {
       try {
-  
         if (!userData.password || userData.password.length < 6) {
           throw new Error('Password must be at least 6 characters');
         }
   
-        // Call stored procedure to create user with hashed password
         const { data, error } = await supabase
           .rpc('create_user_with_hash', {
             p_username: userData.username,
@@ -110,7 +92,6 @@ create: async (userData) => {
   
         if (error) throw error;
   
-        // Check result from stored procedure
         if (!data || data.length === 0) {
           throw new Error('Failed to create user');
         }
@@ -137,16 +118,13 @@ create: async (userData) => {
       }
     },
   
-    // Update user
     update: async (id, userData) => {
       try {
-        // If password is being updated, hash it
         if (userData.password) {
           if (userData.password.length < 6) {
             throw new Error('Password must be at least 6 characters');
           }
           
-          // Call stored procedure to update password
           const { error } = await supabase
             .rpc('update_user_password', {
               p_user_id: id,
@@ -154,12 +132,9 @@ create: async (userData) => {
             });
           
           if (error) throw error;
-          
-          // Remove password from userData before updating other fields
           delete userData.password;
         }
   
-        // Update other user fields
         const { data, error } = await supabase
           .from('users')
           .update(userData)
@@ -174,7 +149,6 @@ create: async (userData) => {
       }
     },
   
-    // Deactivate user (soft delete)
     deactivate: async (id) => {
       try {
         const { data, error } = await supabase
@@ -189,15 +163,30 @@ create: async (userData) => {
       } catch (error) {
         return { success: false, error: handleSupabaseError(error) };
       }
+    },
+
+    delete: async (id) => {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .delete()
+          .eq('id', id)
+          .select()
+          .single();
+  
+        if (error) throw error;
+        return { success: true, data };
+      } catch (error) {
+        return { 
+          success: false, 
+          error: handleSupabaseError(error) 
+        };
+      }
     }
   };
 
-// ============================================
-// PRODUCTS MANAGEMENT
-// ============================================
 
 export const productsService = {
-  // Get all products
   getAll: async () => {
     try {
       const { data, error } = await supabase
@@ -212,7 +201,6 @@ export const productsService = {
     }
   },
 
-  // Get active products only
   getActive: async () => {
     try {
       const { data, error } = await supabase
@@ -228,7 +216,6 @@ export const productsService = {
     }
   },
 
-  // Get single product
   getById: async (id) => {
     try {
       const { data, error } = await supabase
@@ -244,7 +231,6 @@ export const productsService = {
     }
   },
 
-  // Create product
   create: async (productData) => {
     try {
       const { data, error } = await supabase
@@ -260,7 +246,6 @@ export const productsService = {
     }
   },
 
-  // Update product
   update: async (id, productData) => {
     try {
       const { data, error } = await supabase
@@ -277,7 +262,6 @@ export const productsService = {
     }
   },
 
-  // Delete product
   delete: async (id) => {
     try {
       const { error } = await supabase
@@ -292,7 +276,6 @@ export const productsService = {
     }
   },
 
-  // Get low stock products
   getLowStock: async () => {
     try {
       const { data, error } = await supabase
@@ -306,12 +289,8 @@ export const productsService = {
   }
 };
 
-// ============================================
-// TRANSACTIONS / CHECKOUT
-// ============================================
 
 export const transactionsService = {
-  // Get all transactions
   getAll: async (limit = 100) => {
     try {
       const { data, error } = await supabase
@@ -327,10 +306,8 @@ export const transactionsService = {
     }
   },
 
-  // Get single transaction with items
   getById: async (id) => {
     try {
-      // Get transaction
       const { data: transaction, error: txError } = await supabase
         .from('transactions')
         .select('*')
@@ -339,7 +316,6 @@ export const transactionsService = {
 
       if (txError) throw txError;
 
-      // Get transaction items
       const { data: items, error: itemsError } = await supabase
         .from('transaction_items')
         .select('*')
@@ -356,7 +332,7 @@ export const transactionsService = {
     }
   },
 
-  // Process checkout
+
   checkout: async (checkoutData) => {
     try {
       const currentUser = authService.getCurrentUser();
@@ -364,7 +340,6 @@ export const transactionsService = {
         throw new Error('User not authenticated');
       }
 
-      // Prepare items for stored procedure
       const items = checkoutData.items.map(item => ({
         product_id: item.id,
         product_name: item.name,
@@ -372,7 +347,6 @@ export const transactionsService = {
         price: item.price
       }));
 
-      // Call the checkout stored procedure
       const { data, error } = await supabase
         .rpc('checkout_transaction', {
           p_cashier_id: currentUser.id,
@@ -409,12 +383,8 @@ export const transactionsService = {
   }
 };
 
-// ============================================
-// REPORTS
-// ============================================
 
 export const reportsService = {
-  // Get dashboard statistics
   getDashboardStats: async () => {
     try {
       const { data, error } = await supabase
@@ -427,7 +397,6 @@ export const reportsService = {
     }
   },
 
-  // Get sales summary for date range
   getSalesSummary: async (startDate, endDate) => {
     try {
       const { data, error } = await supabase
@@ -443,7 +412,6 @@ export const reportsService = {
     }
   },
 
-  // Get top selling products
   getTopProducts: async (limit = 10, startDate = null, endDate = null) => {
     try {
       const { data, error } = await supabase
@@ -461,12 +429,8 @@ export const reportsService = {
   }
 };
 
-// ============================================
-// SETTINGS
-// ============================================
 
 export const settingsService = {
-  // Get app settings
   get: async () => {
     try {
       const { data, error } = await supabase
@@ -482,10 +446,8 @@ export const settingsService = {
     }
   },
 
-  // Update app settings
   update: async (settings) => {
     try {
-      // Get existing settings ID
       const { data: existing } = await supabase
         .from('app_settings')
         .select('id')
@@ -493,7 +455,6 @@ export const settingsService = {
         .single();
 
       if (!existing) {
-        // Create if doesn't exist
         const { data, error } = await supabase
           .from('app_settings')
           .insert([settings])
@@ -503,7 +464,6 @@ export const settingsService = {
         if (error) throw error;
         return { success: true, data };
       } else {
-        // Update existing
         const { data, error } = await supabase
           .from('app_settings')
           .update(settings)
@@ -520,7 +480,6 @@ export const settingsService = {
   }
 };
 
-// Export all services
 export default {
   auth: authService,
   users: usersService,
