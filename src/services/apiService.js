@@ -60,131 +60,169 @@ export const authService = {
   }
 };
 
-
 export const usersService = {
-    getAll: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('id, username, name, role, is_active, created_at')
-          .order('created_at', { ascending: false });
-  
-        if (error) throw error;
-        return { success: true, data };
-      } catch (error) {
-        return { success: false, error: handleSupabaseError(error) };
+  getAll: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, username, name, role, is_active, created_at')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
+    }
+  },
+
+  create: async (userData) => {
+    try {
+      if (!userData.password || userData.password.length < 6) {
+        throw new Error('Password must be at least 6 characters');
       }
-    },
-  
-    create: async (userData) => {
-      try {
-        if (!userData.password || userData.password.length < 6) {
+
+      const { data, error } = await supabase
+        .rpc('create_user_with_hash', {
+          p_username: userData.username,
+          p_password: userData.password,
+          p_name: userData.name,
+          p_role: userData.role || 'employee'
+        });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        throw new Error('Failed to create user');
+      }
+
+      const result = data[0];
+      
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+
+      return { 
+        success: true, 
+        data: { 
+          id: result.user_id,
+          message: result.message 
+        } 
+      };
+    } catch (error) {
+      console.error('User creation error:', error);
+      return { 
+        success: false, 
+        error: error.message || handleSupabaseError(error) 
+      };
+    }
+  },
+
+  update: async (id, userData) => {
+    try {
+      if (userData.password) {
+        if (userData.password.length < 6) {
           throw new Error('Password must be at least 6 characters');
         }
-  
-        const { data, error } = await supabase
-          .rpc('create_user_with_hash', {
-            p_username: userData.username,
-            p_password: userData.password,
-            p_name: userData.name,
-            p_role: userData.role || 'employee'
-          });
-  
-        if (error) throw error;
-  
-        if (!data || data.length === 0) {
-          throw new Error('Failed to create user');
-        }
-  
-        const result = data[0];
         
-        if (!result.success) {
-          throw new Error(result.message);
-        }
-  
-        return { 
-          success: true, 
-          data: { 
-            id: result.user_id,
-            message: result.message 
-          } 
-        };
-      } catch (error) {
-        console.error('User creation error:', error);
-        return { 
-          success: false, 
-          error: error.message || handleSupabaseError(error) 
-        };
-      }
-    },
-  
-    update: async (id, userData) => {
-      try {
-        if (userData.password) {
-          if (userData.password.length < 6) {
-            throw new Error('Password must be at least 6 characters');
-          }
-          
-          const { error } = await supabase
-            .rpc('update_user_password', {
-              p_user_id: id,
-              p_new_password: userData.password
-            });
-          
-          if (error) throw error;
-          delete userData.password;
-        }
-  
-        const { data, error } = await supabase
-          .from('users')
-          .update(userData)
-          .eq('id', id)
-          .select()
-          .single();
-  
+        const { error } = await supabase
+          .rpc('update_user_password', {
+            p_user_id: id,
+            p_new_password: userData.password
+          });
+        
         if (error) throw error;
-        return { success: true, data };
-      } catch (error) {
-        return { success: false, error: handleSupabaseError(error) };
+        delete userData.password;
       }
-    },
-  
-    deactivate: async (id) => {
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .update({ is_active: false })
-          .eq('id', id)
-          .select()
-          .single();
-  
-        if (error) throw error;
-        return { success: true, data };
-      } catch (error) {
-        return { success: false, error: handleSupabaseError(error) };
-      }
-    },
 
-    delete: async (id) => {
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .delete()
-          .eq('id', id)
-          .select()
-          .single();
-  
-        if (error) throw error;
-        return { success: true, data };
-      } catch (error) {
-        return { 
-          success: false, 
-          error: handleSupabaseError(error) 
-        };
-      }
+      const { data, error } = await supabase
+        .from('users')
+        .update(userData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
     }
-  };
+  },
 
+  deactivate: async (id) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update({ is_active: false })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
+    }
+  },
+
+  delete: async (id) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: handleSupabaseError(error) 
+      };
+    }
+  },
+
+  hasTransactions: async (userId) => {
+    try {
+      const { data, error, count } = await supabase
+        .from('transactions')
+        .select('id', { count: 'exact', head: true })
+        .eq('cashier_id', userId);
+
+      if (error) throw error;
+      
+      return { 
+        success: true, 
+        hasTransactions: count > 0,
+        transactionCount: count 
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: handleSupabaseError(error),
+        hasTransactions: false 
+      };
+    }
+  },
+
+
+  activate: async (id) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update({ is_active: true })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
+    }
+  }
+};
 
 export const productsService = {
   getAll: async () => {
@@ -289,7 +327,6 @@ export const productsService = {
   }
 };
 
-
 export const transactionsService = {
   getAll: async (limit = 100) => {
     try {
@@ -383,7 +420,6 @@ export const transactionsService = {
   }
 };
 
-
 export const reportsService = {
   getDashboardStats: async () => {
     try {
@@ -428,7 +464,6 @@ export const reportsService = {
     }
   }
 };
-
 
 export const settingsService = {
   get: async () => {

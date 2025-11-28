@@ -1,3 +1,4 @@
+// src/components/Users/Users.jsx - SAFE DELETE WITH TRANSACTION CHECK
 import { useState, useEffect } from 'react';
 import api from '../../services/apiService';
 import './Users.css';
@@ -11,7 +12,7 @@ export default function Users() {
     username: '',
     password: '',
     name: '',
-    role: 'employee' 
+    role: 'employee'
   });
 
   useEffect(() => {
@@ -65,6 +66,7 @@ export default function Users() {
   };
 
   const handleDelete = async (user) => {
+    // Prevent deleting yourself
     const currentUser = JSON.parse(localStorage.getItem('pos_user') || '{}');
     
     if (user.id === currentUser.id) {
@@ -72,22 +74,55 @@ export default function Users() {
       return;
     }
 
+    // Prevent deleting admin role
     if (user.role === 'admin') {
       alert('❌ Cannot delete admin accounts!');
       return;
     }
 
+    // ✅ FIRST: Check if user has transaction history
+    const hasTransactions = await checkUserHasTransactions(user.id);
+    
+    if (hasTransactions) {
+      // ✅ OFFER TO DEACTIVATE INSTEAD
+      const deactivateInstead = confirm(
+        `⚠️ CANNOT DELETE USER\n\n` +
+        `"${user.name}" has processed transactions and cannot be permanently deleted.\n\n` +
+        `This is to preserve transaction history and maintain data integrity.\n\n` +
+        `ALTERNATIVE: Would you like to DEACTIVATE this account instead?\n\n` +
+        `• Deactivated users cannot login\n` +
+        `• Transaction history is preserved\n` +
+        `• Account can be reactivated later if needed\n\n` +
+        `Click OK to deactivate, or Cancel to keep as is.`
+      );
+      
+      if (deactivateInstead) {
+        const deactivateResult = await api.users.deactivate(user.id);
+        
+        if (deactivateResult.success) {
+          alert('✅ User account deactivated successfully!\n\nThey can no longer login to the system.');
+          loadUsers();
+        } else {
+          alert('❌ Failed to deactivate user:\n\n' + deactivateResult.error);
+        }
+      }
+      return;
+    }
+
+    // ✅ NO TRANSACTIONS: Safe to delete
     const confirmDelete = confirm(
       `⚠️ DELETE USER?\n\n` +
       `Name: ${user.name}\n` +
       `Username: ${user.username}\n` +
       `Role: ${user.role}\n\n` +
+      `This user has NO transaction history.\n` +
       `This action CANNOT be undone!\n\n` +
       `Are you sure you want to permanently delete this user?`
     );
     
     if (!confirmDelete) return;
 
+    // Double confirmation
     const doubleConfirm = confirm(
       `⚠️ FINAL CONFIRMATION\n\n` +
       `Click OK to permanently delete "${user.name}"`
@@ -95,13 +130,43 @@ export default function Users() {
 
     if (!doubleConfirm) return;
 
+    // Call delete API
     const result = await api.users.delete(user.id);
     
     if (result.success) {
       alert('✅ User deleted successfully');
       loadUsers();
     } else {
-      alert('❌ Failed to delete user:\n\n' + result.error);
+      // If deletion still fails, offer deactivate option
+      if (result.error && result.error.includes('foreign key')) {
+        const deactivateInstead = confirm(
+          `❌ Deletion failed due to database constraints.\n\n` +
+          `Would you like to DEACTIVATE this account instead?\n\n` +
+          `This will prevent login while preserving data integrity.`
+        );
+        
+        if (deactivateInstead) {
+          const deactivateResult = await api.users.deactivate(user.id);
+          if (deactivateResult.success) {
+            alert('✅ User account deactivated successfully!');
+            loadUsers();
+          }
+        }
+      } else {
+        alert('❌ Failed to delete user:\n\n' + result.error);
+      }
+    }
+  };
+
+  // ✅ NEW FUNCTION: Check if user has transactions
+  const checkUserHasTransactions = async (userId) => {
+    try {
+      // Query Supabase to check if user has any transactions
+      const result = await api.users.hasTransactions(userId);
+      return result.success ? result.hasTransactions : false;
+    } catch (error) {
+      console.error('Error checking transactions:', error);
+      return false;
     }
   };
 
@@ -125,6 +190,13 @@ export default function Users() {
         </button>
       </div>
 
+      <div className="info-banner">
+        <span className="info-icon">ℹ️</span>
+        <div className="info-content">
+          <strong>User Deletion Policy:</strong> Users who have processed transactions cannot be deleted 
+          (to preserve transaction history). They can only be deactivated.
+        </div>
+      </div>
 
       <div className="users-table-wrapper">
         <table className="table">
@@ -140,7 +212,7 @@ export default function Users() {
           </thead>
           <tbody>
             {users.map(user => (
-              <tr key={user.id}>
+              <tr key={user.id} className={!user.is_active ? 'inactive-row' : ''}>
                 <td><strong>{user.name}</strong></td>
                 <td>{user.username}</td>
                 <td>
@@ -156,13 +228,31 @@ export default function Users() {
                 <td>{new Date(user.created_at).toLocaleDateString()}</td>
                 <td>
                   {user.role === 'employee' ? (
-                    <button
-                      onClick={() => handleDelete(user)}
-                      className="btn btn-sm btn-danger"
-                      title="Delete User"
-                    >
-                      🗑️ Delete
-                    </button>
+                    <div className="user-actions">
+                      {user.is_active ? (
+                        <button
+                          onClick={() => handleDelete(user)}
+                          className="btn btn-sm btn-danger"
+                          title="Delete or Deactivate User"
+                        >
+                          🗑️ Delete
+                        </button>
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            const result = await api.users.activate(user.id);
+                            if (result.success) {
+                              alert('✅ User activated successfully!');
+                              loadUsers();
+                            }
+                          }}
+                          className="btn btn-sm btn-success"
+                          title="Reactivate User"
+                        >
+                          ✓ Activate
+                        </button>
+                      )}
+                    </div>
                   ) : (
                     <span className="protected-badge" title="Admin accounts cannot be deleted">
                       🔒 Protected
@@ -175,6 +265,7 @@ export default function Users() {
         </table>
       </div>
 
+      {/* Add Employee Modal */}
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -230,6 +321,11 @@ export default function Users() {
                   <span className="badge badge-employee">EMPLOYEE</span>
                   <small>All new accounts are created as employees</small>
                 </div>
+              </div>
+
+              <div className="alert alert-info" style={{marginTop: '16px'}}>
+                <strong>ℹ️ Note:</strong> Employee accounts can access POS, view transactions and reports. 
+                Admin features are restricted to admin accounts only.
               </div>
 
               <div className="form-actions">

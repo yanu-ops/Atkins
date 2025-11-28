@@ -142,3 +142,17 @@
       gap: 8px;
     }
   }
+
+  .inactive-row {
+    opacity: 0.6;
+    background: var(--lightest-grey);
+  }
+  
+  .inactive-row td {
+    color: var(--text-secondary);
+  }
+  
+  .user-actions {
+    display: flex;
+    gap: 8px;
+  }
