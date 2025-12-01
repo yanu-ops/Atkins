@@ -40,6 +40,7 @@ export default function POSCheckout() {
       setRecentTransactions(result.data);
     }
   };
+  
 
 
   const categoryFiltered = selectedCategory === 'all'

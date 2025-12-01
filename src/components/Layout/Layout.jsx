@@ -29,8 +29,16 @@ export default function Layout() {
       <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <div className="logo">
-            <div className="logo-icon">📊</div>
-            {sidebarOpen && <h2>ATKINS POS</h2>}
+            <div className="logo-icon">
+              <img 
+                src="/atkins.jpg" 
+                alt="POS Logo" 
+                style={{ width: '300%', height: '110%', objectFit: 'cover', borderRadius: '12px' }}
+              />
+            </div>
+            {sidebarOpen && (
+                <h2 style={{ marginLeft: '30px', whiteSpace: 'nowrap' }}>Atkins POS</h2>
+            )}
           </div>
           <button onClick={toggleSidebar} className="toggle-btn">
             {sidebarOpen ? '◀' : '▶'}

@@ -64,6 +64,7 @@
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
+
   
   .logo h2 {
     margin: 0;
@@ -74,6 +75,9 @@
   }
   
   .toggle-btn {
+    position: absolute;
+    top: 16px;           
+    right: -18px;        
     width: 36px;
     height: 36px;
     border: none;
@@ -82,11 +86,12 @@
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
-    transition: all var(--transition-base);
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all var(--transition-base);
     backdrop-filter: blur(10px);
+    z-index: 200;
   }
   
   .toggle-btn:hover {
@@ -95,7 +100,7 @@
   }
   
   .sidebar.closed .toggle-btn {
-    margin: 0 auto;
+    right: -18px;
   }
   
 

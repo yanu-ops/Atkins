@@ -31,8 +31,14 @@ export default function Login() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <div className="login-icon">📊</div>
-          <h1>ATKINS</h1>
+          <div className="login-icon">
+            <img 
+              src="/atkins.jpg" 
+              alt="POS System Logo" 
+              style={{ width: '250%', height: '100%', objectFit: 'cover', borderRadius: '20px' }}
+            />
+          </div>
+          <h1>Atkins Guitar Store</h1>
           <p>Point of Sale Management</p>
         </div>
 
@@ -77,6 +83,7 @@ export default function Login() {
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
+
         </form>
       </div>
 
