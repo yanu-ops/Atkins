@@ -339,7 +339,6 @@ export default function POSCheckout() {
             >
               <option value="cash">Cash</option>
               <option value="gcash">GCash</option>
-              <option value="card">Card</option>
             </select>
 
             <label>Amount Paid</label>
