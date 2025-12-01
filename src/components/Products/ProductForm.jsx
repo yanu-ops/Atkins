@@ -91,14 +91,16 @@ export default function ProductForm({ product, onClose }) {
         <form onSubmit={handleSubmit} className="product-form">
 
           <div className="image-preview-section">
+            <div className="image-box">
             {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="image-preview" />
+              <img src={imagePreview} alt="Preview" className="image-preview" onError={() => setImagePreview('')}/>
             ) : (
               <div className="image-placeholder">
                 <span>📷</span>
                 <p>No image</p>
               </div>
             )}
+            </div>
           </div>
 
           <div className="form-group">
