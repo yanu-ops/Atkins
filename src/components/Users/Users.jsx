@@ -1,4 +1,3 @@
-// src/components/Users/Users.jsx - SAFE DELETE WITH TRANSACTION CHECK
 import { useState, useEffect } from 'react';
 import api from '../../services/apiService';
 import './Users.css';
@@ -66,7 +65,6 @@ export default function Users() {
   };
 
   const handleDelete = async (user) => {
-    // Prevent deleting yourself
     const currentUser = JSON.parse(localStorage.getItem('pos_user') || '{}');
     
     if (user.id === currentUser.id) {
@@ -74,17 +72,14 @@ export default function Users() {
       return;
     }
 
-    // Prevent deleting admin role
     if (user.role === 'admin') {
       alert('❌ Cannot delete admin accounts!');
       return;
     }
 
-    // ✅ FIRST: Check if user has transaction history
     const hasTransactions = await checkUserHasTransactions(user.id);
     
     if (hasTransactions) {
-      // ✅ OFFER TO DEACTIVATE INSTEAD
       const deactivateInstead = confirm(
         `⚠️ CANNOT DELETE USER\n\n` +
         `"${user.name}" has processed transactions and cannot be permanently deleted.\n\n` +
@@ -109,7 +104,6 @@ export default function Users() {
       return;
     }
 
-    // ✅ NO TRANSACTIONS: Safe to delete
     const confirmDelete = confirm(
       `⚠️ DELETE USER?\n\n` +
       `Name: ${user.name}\n` +
@@ -122,7 +116,7 @@ export default function Users() {
     
     if (!confirmDelete) return;
 
-    // Double confirmation
+
     const doubleConfirm = confirm(
       `⚠️ FINAL CONFIRMATION\n\n` +
       `Click OK to permanently delete "${user.name}"`
@@ -130,14 +124,13 @@ export default function Users() {
 
     if (!doubleConfirm) return;
 
-    // Call delete API
+
     const result = await api.users.delete(user.id);
     
     if (result.success) {
       alert('✅ User deleted successfully');
       loadUsers();
     } else {
-      // If deletion still fails, offer deactivate option
       if (result.error && result.error.includes('foreign key')) {
         const deactivateInstead = confirm(
           `❌ Deletion failed due to database constraints.\n\n` +
@@ -158,10 +151,8 @@ export default function Users() {
     }
   };
 
-  // ✅ NEW FUNCTION: Check if user has transactions
   const checkUserHasTransactions = async (userId) => {
     try {
-      // Query Supabase to check if user has any transactions
       const result = await api.users.hasTransactions(userId);
       return result.success ? result.hasTransactions : false;
     } catch (error) {
@@ -265,7 +256,6 @@ export default function Users() {
         </table>
       </div>
 
-      {/* Add Employee Modal */}
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
