@@ -72,7 +72,7 @@ export default function Layout() {
               />
             </div>
             {sidebarOpen && (
-              <h2 style={{ marginLeft: '30px', whiteSpace: 'nowrap' }}>Atkins POS</h2>
+              <h2 style={{ marginLeft: '30px', whiteSpace: 'nowrap' }}>ATKINS POS</h2>
             )}
           </div>
           {/* Desktop Toggle Button - Inside Sidebar Header */}
