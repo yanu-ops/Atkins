@@ -1,6 +1,8 @@
 import { supabase, handleSupabaseError } from '../lib/supabaseClient';
 
-
+// ============================================
+// AUTHENTICATION SERVICE
+// ============================================
 export const authService = {
   login: async (username, password) => {
     try {
@@ -60,6 +62,9 @@ export const authService = {
   }
 };
 
+// ============================================
+// USERS SERVICE
+// ============================================
 export const usersService = {
   getAll: async () => {
     try {
@@ -206,7 +211,6 @@ export const usersService = {
     }
   },
 
-
   activate: async (id) => {
     try {
       const { data, error } = await supabase
@@ -224,6 +228,9 @@ export const usersService = {
   }
 };
 
+// ============================================
+// PRODUCTS SERVICE
+// ============================================
 export const productsService = {
   getAll: async () => {
     try {
@@ -327,6 +334,9 @@ export const productsService = {
   }
 };
 
+// ============================================
+// TRANSACTIONS SERVICE
+// ============================================
 export const transactionsService = {
   getAll: async (limit = 100) => {
     try {
@@ -368,7 +378,6 @@ export const transactionsService = {
       return { success: false, error: handleSupabaseError(error) };
     }
   },
-
 
   checkout: async (checkoutData) => {
     try {
@@ -420,6 +429,9 @@ export const transactionsService = {
   }
 };
 
+// ============================================
+// REPORTS SERVICE
+// ============================================
 export const reportsService = {
   getDashboardStats: async () => {
     try {
@@ -465,6 +477,9 @@ export const reportsService = {
   }
 };
 
+// ============================================
+// SETTINGS SERVICE
+// ============================================
 export const settingsService = {
   get: async () => {
     try {
@@ -515,183 +530,211 @@ export const settingsService = {
   }
 };
 
-// Add at the end of apiService.js, before export default
-
 // ============================================
 // BACKUP & RESTORE SERVICE
 // ============================================
 export const backupService = {
-    exportBackup: async () => {
-      try {
-        const { data, error } = await supabase
-          .rpc('export_database_backup');
-        
-        if (error) throw error;
-        
-        const timestamp = new Date().toISOString().split('T')[0];
-        const filename = `atkins-pos-backup-${timestamp}.json`;
-        
-        const blob = new Blob([JSON.stringify(data, null, 2)], { 
-          type: 'application/json' 
+  exportBackup: async () => {
+    try {
+      const { data, error } = await supabase
+        .rpc('export_database_backup');
+      
+      if (error) throw error;
+      
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `atkins-pos-backup-${timestamp}.json`;
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { 
+        type: 'application/json' 
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      return { success: true, filename };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
+    }
+  },
+
+  getBackupStats: async () => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_export_stats');
+      
+      if (error) throw error;
+      return { success: true, data: data[0] };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
+    }
+  },
+
+  restoreBackup: async (backupData) => {
+    try {
+      // Validate backup data
+      if (!backupData || !backupData.version || !backupData.backup_date) {
+        throw new Error('Invalid backup file format');
+      }
+
+      // In a production environment, this should be done server-side
+      // For now, we'll provide a basic implementation that requires manual steps
+
+      console.log('Backup data validated:', {
+        version: backupData.version,
+        date: backupData.backup_date,
+        productsCount: backupData.products?.length || 0,
+        transactionsCount: backupData.transactions?.length || 0
+      });
+
+      // Note: Full restore requires database-level operations
+      // This should be implemented as a Supabase function
+      
+      return { 
+        success: false, 
+        error: 'Full restore requires database administrator access. Please use Supabase dashboard to restore data, or contact your system administrator.'
+      };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) || error.message };
+    }
+  }
+};
+
+// ============================================
+// EXPORT SERVICE (CSV)
+// ============================================
+export const exportService = {
+  exportSalesReport: async (startDate = null, endDate = null) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('export_sales_report', {
+          p_start_date: startDate,
+          p_end_date: endDate
         });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        
-        return { success: true, filename };
-      } catch (error) {
-        return { success: false, error: handleSupabaseError(error) };
+      
+      if (error) throw error;
+      
+      if (!data || data.length === 0) {
+        throw new Error('No data available');
       }
-    },
-  
-    getBackupStats: async () => {
-      try {
-        const { data, error } = await supabase
-          .rpc('get_export_stats');
-        
-        if (error) throw error;
-        return { success: true, data: data[0] };
-      } catch (error) {
-        return { success: false, error: handleSupabaseError(error) };
-      }
+      
+      const csv = convertToCSV(data);
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `sales-report-${dateStr}.csv`;
+      
+      downloadCSV(csv, filename);
+      
+      return { success: true, filename, recordCount: data.length };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
     }
-  };
-  
-  // ============================================
-  // EXPORT SERVICE
-  // ============================================
-  export const exportService = {
-    exportSalesReport: async (startDate = null, endDate = null) => {
-      try {
-        const { data, error } = await supabase
-          .rpc('export_sales_report', {
-            p_start_date: startDate,
-            p_end_date: endDate
-          });
-        
-        if (error) throw error;
-        
-        if (!data || data.length === 0) {
-          throw new Error('No data available');
-        }
-        
-        const csv = convertToCSV(data);
-        const dateStr = new Date().toISOString().split('T')[0];
-        const filename = `sales-report-${dateStr}.csv`;
-        
-        downloadCSV(csv, filename);
-        
-        return { success: true, filename, recordCount: data.length };
-      } catch (error) {
-        return { success: false, error: handleSupabaseError(error) };
-      }
-    },
-  
-    exportProducts: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('name, brand, category, price, stock, min_stock_threshold, is_active')
-          .order('name');
-        
-        if (error) throw error;
-        
-        const csv = convertToCSV(data);
-        const filename = `products-${new Date().toISOString().split('T')[0]}.csv`;
-        
-        downloadCSV(csv, filename);
-        
-        return { success: true, filename, recordCount: data.length };
-      } catch (error) {
-        return { success: false, error: handleSupabaseError(error) };
-      }
-    },
-  
-    exportInventory: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('name, category, stock, min_stock_threshold, price')
-          .order('stock', { ascending: true });
-        
-        if (error) throw error;
-        
-        const inventoryData = data.map(item => ({
-          ...item,
-          status: item.stock === 0 ? 'OUT OF STOCK' : 
-                  item.stock <= item.min_stock_threshold ? 'LOW STOCK' : 'IN STOCK',
-          value: (item.stock * item.price).toFixed(2)
-        }));
-        
-        const csv = convertToCSV(inventoryData);
-        const filename = `inventory-${new Date().toISOString().split('T')[0]}.csv`;
-        
-        downloadCSV(csv, filename);
-        
-        return { success: true, filename, recordCount: data.length };
-      } catch (error) {
-        return { success: false, error: handleSupabaseError(error) };
-      }
+  },
+
+  exportProducts: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('name, brand, category, price, stock, min_stock_threshold, is_active')
+        .order('name');
+      
+      if (error) throw error;
+      
+      const csv = convertToCSV(data);
+      const filename = `products-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      downloadCSV(csv, filename);
+      
+      return { success: true, filename, recordCount: data.length };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
     }
-  };
+  },
+
+  exportInventory: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('name, category, stock, min_stock_threshold, price')
+        .order('stock', { ascending: true });
+      
+      if (error) throw error;
+      
+      const inventoryData = data.map(item => ({
+        ...item,
+        status: item.stock === 0 ? 'OUT OF STOCK' : 
+                item.stock <= item.min_stock_threshold ? 'LOW STOCK' : 'IN STOCK',
+        value: (item.stock * item.price).toFixed(2)
+      }));
+      
+      const csv = convertToCSV(inventoryData);
+      const filename = `inventory-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      downloadCSV(csv, filename);
+      
+      return { success: true, filename, recordCount: data.length };
+    } catch (error) {
+      return { success: false, error: handleSupabaseError(error) };
+    }
+  }
+};
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+function convertToCSV(data) {
+  if (!data || data.length === 0) return '';
   
-  // Helper functions
-  function convertToCSV(data) {
-    if (!data || data.length === 0) return '';
-    
-    const headers = Object.keys(data[0]);
-    const csvHeader = headers.join(',');
-    
-    const csvRows = data.map(row => {
-      return headers.map(header => {
-        const value = row[header];
-        if (value === null || value === undefined) return '';
-        if (typeof value === 'string') {
-          if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value;
+  const headers = Object.keys(data[0]);
+  const csvHeader = headers.join(',');
+  
+  const csvRows = data.map(row => {
+    return headers.map(header => {
+      const value = row[header];
+      if (value === null || value === undefined) return '';
+      if (typeof value === 'string') {
+        if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+          return `"${value.replace(/"/g, '""')}"`;
         }
-        if (value instanceof Date) return value.toISOString();
         return value;
-      }).join(',');
-    });
-    
-    return [csvHeader, ...csvRows].join('\n');
-  }
+      }
+      if (value instanceof Date) return value.toISOString();
+      return value;
+    }).join(',');
+  });
   
-  function downloadCSV(csvContent, filename) {
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csvContent], { 
-      type: 'text/csv;charset=utf-8;' 
-    });
-    
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  }
+  return [csvHeader, ...csvRows].join('\n');
+}
+
+function downloadCSV(csvContent, filename) {
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + csvContent], { 
+    type: 'text/csv;charset=utf-8;' 
+  });
   
-  // Update default export
-  export default {
-    auth: authService,
-    users: usersService,
-    products: productsService,
-    transactions: transactionsService,
-    reports: reportsService,
-    settings: settingsService,
-    backup: backupService,
-    export: exportService
-  };
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
 
-
-
+// ============================================
+// DEFAULT EXPORT
+// ============================================
+export default {
+  auth: authService,
+  users: usersService,
+  products: productsService,
+  transactions: transactionsService,
+  reports: reportsService,
+  settings: settingsService,
+  backup: backupService,
+  export: exportService
+};

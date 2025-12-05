@@ -10,6 +10,7 @@ import Reports from './components/Reports/Reports';
 import Users from './components/Users/Users';
 import Settings from './components/Settings/Settings';
 import './App.css';
+import BackupRestore from './components/Backup/BackupRestore';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -71,6 +72,7 @@ function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="backup" element={<BackupRestore />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

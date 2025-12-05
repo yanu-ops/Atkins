@@ -167,6 +167,17 @@ export default function Layout() {
                 <span className="nav-icon">⚙️</span>
                 {sidebarOpen && <span className="nav-text">Settings</span>}
               </Link>
+
+              <Link 
+                to="/backup" 
+                className={`nav-item ${isActive('/backup')}`} 
+                title="Backup & Restore"
+                onClick={closeSidebarOnMobile}
+            >
+                <span className="nav-icon">💾</span>
+                {sidebarOpen && <span className="nav-text">Backup & Restore</span>}
+            </Link>
+
             </>
           )}
         </nav>
