@@ -6,6 +6,7 @@ import './Receipt.css';
 export default function Receipt({ receipt, onNewTransaction }) {
   const [settings, setSettings] = useState(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
+  const [printSize, setPrintSize] = useState('80mm'); // 80mm or A4
 
   useEffect(() => {
     loadSettings();
@@ -28,6 +29,9 @@ export default function Receipt({ receipt, onNewTransaction }) {
   };
 
   const handlePrint = () => {
+    // Set the print size attribute on body before printing
+    document.body.setAttribute('data-print-size', printSize);
+    
     window.focus();
     setTimeout(() => {
       window.print();
@@ -44,7 +48,36 @@ export default function Receipt({ receipt, onNewTransaction }) {
 
   return (
     <div className="receipt-container">
-      <div className="receipt-paper" id="receipt">
+      {/* Print Size Selector */}
+      <div className="print-options no-print">
+        <div className="print-size-selector">
+          <label>Print Size:</label>
+          <div className="size-buttons">
+            <button
+              className={`size-btn ${printSize === '80mm' ? 'active' : ''}`}
+              onClick={() => setPrintSize('80mm')}
+            >
+              <span className="size-icon">📄</span>
+              <div className="size-info">
+                <strong>80mm Thermal</strong>
+                <small>Receipt Printer</small>
+              </div>
+            </button>
+            <button
+              className={`size-btn ${printSize === 'A4' ? 'active' : ''}`}
+              onClick={() => setPrintSize('A4')}
+            >
+              <span className="size-icon">📋</span>
+              <div className="size-info">
+                <strong>A4 Paper</strong>
+                <small>Standard Printer</small>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className={`receipt-paper ${printSize === 'A4' ? 'receipt-a4' : ''}`} id="receipt">
         <div className="receipt-header">
           <h1>{settings?.store_name?.toUpperCase() || 'ATKINS GUITAR STORE'}</h1>
           {settings?.store_address && (
@@ -141,7 +174,6 @@ export default function Receipt({ receipt, onNewTransaction }) {
             <p className="receipt-notes">Note: {receipt.notes}</p>
           )}
         </div>
-
 
         <div className="receipt-barcode">
           <p>* {receipt.transaction_number} *</p>

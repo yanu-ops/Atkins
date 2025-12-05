@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import './Layout.css';
@@ -8,6 +8,26 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+      
+      // On mobile, start with sidebar closed
+      if (mobile) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Check on mount
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
@@ -24,8 +44,23 @@ export default function Layout() {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const closeSidebarOnMobile = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
     <div className="layout">
+      {/* Mobile Overlay */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="mobile-overlay active" 
+          onClick={closeSidebarOnMobile}
+        />
+      )}
+
+      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <div className="logo">
@@ -37,12 +72,15 @@ export default function Layout() {
               />
             </div>
             {sidebarOpen && (
-                <h2 style={{ marginLeft: '30px', whiteSpace: 'nowrap' }}>Atkins POS</h2>
+              <h2 style={{ marginLeft: '30px', whiteSpace: 'nowrap' }}>Atkins POS</h2>
             )}
           </div>
-          <button onClick={toggleSidebar} className="toggle-btn">
-            {sidebarOpen ? '◀' : '▶'}
-          </button>
+          {/* Desktop Toggle Button - Inside Sidebar Header */}
+          {!isMobile && (
+            <button onClick={toggleSidebar} className="toggle-btn">
+              {sidebarOpen ? '◀' : '▶'}
+            </button>
+          )}
         </div>
 
         <div className="user-info">
@@ -56,23 +94,43 @@ export default function Layout() {
         </div>
 
         <nav className="sidebar-nav">
-          <Link to="/dashboard" className={`nav-item ${isActive('/dashboard')}`} title="Dashboard">
+          <Link 
+            to="/dashboard" 
+            className={`nav-item ${isActive('/dashboard')}`} 
+            title="Dashboard"
+            onClick={closeSidebarOnMobile}
+          >
             <span className="nav-icon">📊</span>
             {sidebarOpen && <span className="nav-text">Dashboard</span>}
           </Link>
 
-          <Link to="/pos" className={`nav-item ${isActive('/pos')}`} title="POS">
+          <Link 
+            to="/pos" 
+            className={`nav-item ${isActive('/pos')}`} 
+            title="POS"
+            onClick={closeSidebarOnMobile}
+          >
             <span className="nav-icon">🛒</span>
             {sidebarOpen && <span className="nav-text">Point of Sale</span>}
           </Link>
 
-          <Link to="/products" className={`nav-item ${isActive('/products')}`} title="Products">
+          <Link 
+            to="/products" 
+            className={`nav-item ${isActive('/products')}`} 
+            title="Products"
+            onClick={closeSidebarOnMobile}
+          >
             <span className="nav-icon">📦</span>
             {sidebarOpen && <span className="nav-text">Products</span>}
           </Link>
 
-          <Link to="/transactions" className={`nav-item ${isActive('/transactions')}`} title="Transactions">
-            <span className="nav-icon">📝</span>
+          <Link 
+            to="/transactions" 
+            className={`nav-item ${isActive('/transactions')}`} 
+            title="Transactions"
+            onClick={closeSidebarOnMobile}
+          >
+            <span className="nav-icon">📄</span>
             {sidebarOpen && <span className="nav-text">Transactions</span>}
           </Link>
 
@@ -80,17 +138,32 @@ export default function Layout() {
             <>
               <div className="nav-divider"></div>
               
-              <Link to="/reports" className={`nav-item ${isActive('/reports')}`} title="Reports">
+              <Link 
+                to="/reports" 
+                className={`nav-item ${isActive('/reports')}`} 
+                title="Reports"
+                onClick={closeSidebarOnMobile}
+              >
                 <span className="nav-icon">📈</span>
                 {sidebarOpen && <span className="nav-text">Reports</span>}
               </Link>
 
-              <Link to="/users" className={`nav-item ${isActive('/users')}`} title="Users">
+              <Link 
+                to="/users" 
+                className={`nav-item ${isActive('/users')}`} 
+                title="Users"
+                onClick={closeSidebarOnMobile}
+              >
                 <span className="nav-icon">👥</span>
                 {sidebarOpen && <span className="nav-text">Users</span>}
               </Link>
 
-              <Link to="/settings" className={`nav-item ${isActive('/settings')}`} title="Settings">
+              <Link 
+                to="/settings" 
+                className={`nav-item ${isActive('/settings')}`} 
+                title="Settings"
+                onClick={closeSidebarOnMobile}
+              >
                 <span className="nav-icon">⚙️</span>
                 {sidebarOpen && <span className="nav-text">Settings</span>}
               </Link>
@@ -106,6 +179,17 @@ export default function Layout() {
         </div>
       </aside>
 
+      {/* Mobile Toggle Button - Outside Sidebar */}
+      {isMobile && (
+        <button 
+          onClick={toggleSidebar} 
+          className="toggle-btn"
+        >
+          {sidebarOpen ? '✕' : '☰'}
+        </button>
+      )}
+
+      {/* Main Content */}
       <main className={`main-content ${sidebarOpen ? '' : 'expanded'}`}>
         <Outlet />
       </main>

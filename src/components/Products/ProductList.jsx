@@ -2,11 +2,13 @@ import { useState, useMemo } from 'react';
 import { useProducts } from '../../hooks/useProducts';
 import { formatCurrency } from '../../utils/formatters';
 import ProductForm from './ProductForm';
+import CategoryManager from './CategoryManager';
 import './ProductList.css';
 
 export default function ProductList() {
   const { products, loading, reload, update, delete: deleteProduct } = useProducts();
   const [showForm, setShowForm] = useState(false);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('active');
@@ -114,12 +116,17 @@ export default function ProductList() {
     reload();
   };
 
+  const handleCloseCategoryManager = () => {
+    setShowCategoryManager(false);
+    reload();
+  };
+
   if (loading) return <div className="loading">Loading products...</div>;
 
   return (
     <div className="products-container">
       <div className="page-header">
-        <div>
+        <div className="page-header-text">
           <h1>Products</h1>
           <p>{products.length} total products</p>
         </div>
@@ -131,6 +138,9 @@ export default function ProductList() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input-header"
           />
+          <button onClick={() => setShowCategoryManager(true)} className="btn btn-secondary">
+            🏷️ Categories
+          </button>
           <button onClick={handleAdd} className="btn btn-primary">
             + Add Product
           </button>
@@ -290,6 +300,10 @@ export default function ProductList() {
           product={editingProduct}
           onClose={handleCloseForm}
         />
+      )}
+
+      {showCategoryManager && (
+        <CategoryManager onClose={handleCloseCategoryManager} />
       )}
     </div>
   );

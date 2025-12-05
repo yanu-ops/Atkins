@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useProducts } from '../../hooks/useProducts';
+import { supabase } from '../../lib/supabaseClient';
 import './ProductForm.css';
 
 export default function ProductForm({ product, onClose }) {
   const { create, update } = useProducts();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -20,6 +23,8 @@ export default function ProductForm({ product, onClose }) {
   });
 
   useEffect(() => {
+    loadCategories();
+    
     if (product) {
       setFormData({
         name: product.name || '',
@@ -35,6 +40,33 @@ export default function ProductForm({ product, onClose }) {
       setImagePreview(product.image_url || '');
     }
   }, [product]);
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_active_categories');
+      
+      if (error) throw error;
+      
+      // Extract just the category names
+      const categoryNames = (data || []).map(cat => cat.name);
+      setCategories(categoryNames);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      // Fallback to default categories
+      setCategories([
+        'Electric Guitars',
+        'Acoustic Guitars',
+        'Bass Guitars',
+        'Amplifiers',
+        'Effects',
+        'Accessories',
+        'Strings',
+        'Parts'
+      ]);
+    }
+    setLoadingCategories(false);
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -72,9 +104,7 @@ export default function ProductForm({ product, onClose }) {
 
     if (result.success) {
       alert(`Product ${product ? 'updated' : 'created'} successfully!`);
-      
       onClose();
-      
     } else {
       alert('Operation failed: ' + result.error);
     }
@@ -89,17 +119,16 @@ export default function ProductForm({ product, onClose }) {
         </div>
 
         <form onSubmit={handleSubmit} className="product-form">
-
           <div className="image-preview-section">
             <div className="image-box">
-            {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="image-preview" onError={() => setImagePreview('')}/>
-            ) : (
-              <div className="image-placeholder">
-                <span>📷</span>
-                <p>No image</p>
-              </div>
-            )}
+              {imagePreview ? (
+                <img src={imagePreview} alt="Preview" className="image-preview" onError={() => setImagePreview('')}/>
+              ) : (
+                <div className="image-placeholder">
+                  <span>📷</span>
+                  <p>No image</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -146,23 +175,27 @@ export default function ProductForm({ product, onClose }) {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="category">Category *</label>
-              <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Category</option>
-                <option value="Electric Guitars">Electric Guitars</option>
-                <option value="Acoustic Guitars">Acoustic Guitars</option>
-                <option value="Bass Guitars">Bass Guitars</option>
-                <option value="Amplifiers">Amplifiers</option>
-                <option value="Effects">Effects</option>
-                <option value="Accessories">Accessories</option>
-                <option value="Strings">Strings</option>
-                <option value="Parts">Parts</option>
-              </select>
+              {loadingCategories ? (
+                <select disabled>
+                  <option>Loading categories...</option>
+                </select>
+              ) : (
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <small>Manage categories from the Products page</small>
             </div>
 
             <div className="form-group">

@@ -1,0 +1,212 @@
+.category-modal {
+    max-width: 800px;
+    max-height: 90vh;
+  }
+  
+  .category-manager-content {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  
+  .add-category-form {
+    padding: 24px;
+    background: var(--lightest-grey);
+    border-radius: var(--border-radius-lg);
+    border: 2px solid var(--border-color);
+  }
+  
+  .add-category-form h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .icon-select {
+    font-size: 28px;
+    height: 50px;
+    text-align: center;
+    padding: 8px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: var(--white);
+    cursor: pointer;
+    transition: all var(--transition-base);
+  }
+  
+  .icon-select:focus {
+    outline: none;
+    border-color: var(--primary-dark);
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+  }
+  
+  .categories-list-section {
+    padding-top: 24px;
+    border-top: 2px solid var(--lightest-grey);
+  }
+  
+  .categories-list-section h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+  
+  .category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    transition: all var(--transition-base);
+    gap: 16px;
+  }
+  
+  .category-item:hover {
+    border-color: var(--primary-dark);
+    box-shadow: var(--shadow-sm);
+    transform: translateX(4px);
+  }
+  
+  .category-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .category-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--lightest-grey);
+    border-radius: 10px;
+  }
+  
+  .category-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .category-details strong {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .category-details small {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .category-product-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--lightest-grey);
+    padding: 6px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  
+  .no-categories {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    background: var(--lightest-grey);
+    border-radius: var(--border-radius);
+    border: 2px dashed var(--border-color);
+  }
+  
+  .no-categories p {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+  
+  .no-categories small {
+    font-size: 14px;
+    color: var(--text-light);
+  }
+  
+  .modal-footer {
+    padding: 20px 28px;
+    border-top: 2px solid var(--lightest-grey);
+    background: var(--lightest-grey);
+  }
+  
+  /* Scrollbar styling */
+  .categories-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .categories-list::-webkit-scrollbar-thumb {
+    background: var(--light-grey);
+    border-radius: 4px;
+  }
+  
+  .categories-list::-webkit-scrollbar-thumb:hover {
+    background: var(--medium-grey);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .category-manager-content {
+      padding: 20px;
+      gap: 24px;
+    }
+  
+    .add-category-form {
+      padding: 20px;
+    }
+  
+    .category-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  
+    .category-info {
+      width: 100%;
+    }
+  
+    .category-item .btn {
+      width: 100%;
+    }
+  
+    .category-product-count {
+      margin-left: auto;
+    }
+  }

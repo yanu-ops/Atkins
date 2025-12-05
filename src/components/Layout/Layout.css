@@ -5,7 +5,6 @@
     background: var(--lightest-grey);
   }
   
-
   .sidebar {
     width: 250px;
     background: linear-gradient(180deg, var(--primary-dark) 0%, #0f0f0f 100%);
@@ -30,10 +29,10 @@
   }
   
   .sidebar.closed {
-    width: 110px;
+    width: 80px;
   }
   
-.sidebar-header {
+  .sidebar-header {
     padding: 24px 16px; 
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
@@ -42,15 +41,15 @@
     position: relative;
     z-index: 1;
     gap: 12px; 
-}
+  }
   
-.logo {
+  .logo {
     display: flex;
     align-items: center;
     gap: 12px;
     flex: 1;  
     min-width: 0;  
-}
+  }
   
   .logo-icon {
     font-size: 32px;
@@ -63,8 +62,8 @@
     border-radius: 12px;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
   }
-
   
   .logo h2 {
     margin: 0;
@@ -74,14 +73,15 @@
     letter-spacing: -0.5px;
   }
   
+  /* Desktop Toggle Button - Inside Sidebar */
   .toggle-btn {
     position: absolute;
-    top: 16px;           
+    top: 24px;           
     right: -18px;        
     width: 36px;
     height: 36px;
     border: none;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--primary-dark);
     color: var(--white);
     border-radius: 8px;
     cursor: pointer;
@@ -92,18 +92,18 @@
     transition: all var(--transition-base);
     backdrop-filter: blur(10px);
     z-index: 200;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   
   .toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--primary-grey);
     transform: scale(1.05);
   }
   
-  .sidebar.closed .toggle-btn {
-    right: -18px;
+  .toggle-btn:active {
+    transform: scale(0.95);
   }
   
-
   .user-info {
     padding: 22px 20px;
     display: flex;
@@ -160,7 +160,6 @@
     display: none;
   }
   
-
   .sidebar-nav {
     flex: 1;
     padding: 20px 0;
@@ -241,7 +240,6 @@
     margin: 16px 12px;
   }
   
- 
   .sidebar-footer {
     padding: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -281,7 +279,6 @@
     display: none;
   }
   
-
   .main-content {
     flex: 1;
     overflow-y: auto;
@@ -293,7 +290,6 @@
     margin-left: 0;
   }
   
-
   .loading-screen {
     display: flex;
     flex-direction: column;
@@ -306,16 +302,38 @@
     gap: 20px;
   }
   
-
+  /* Mobile Menu Overlay */
+  .mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+  }
+  
+  .mobile-overlay.active {
+    display: block;
+  }
+  
+  /* Tablet and Mobile Responsiveness */
   @media (max-width: 1024px) {
     .sidebar {
       position: fixed;
       left: 0;
       top: 0;
-      height: 100%;
+      height: 100vh;
       z-index: 1000;
-      transform: translateX(0);
+      width: 280px;
+      transform: translateX(-100%);
       transition: transform var(--transition-slow);
+    }
+  
+    .sidebar.open {
+      transform: translateX(0);
     }
   
     .sidebar.closed {
@@ -325,12 +343,15 @@
   
     .main-content {
       margin-left: 0 !important;
+      width: 100%;
     }
   
+    /* Mobile Toggle Button - Fixed position outside sidebar */
     .toggle-btn {
-      position: fixed;
+      position: fixed !important;
       left: 20px;
       top: 20px;
+      right: auto;
       z-index: 1001;
       background: var(--primary-dark);
       width: 44px;
@@ -338,8 +359,9 @@
       box-shadow: var(--shadow-lg);
     }
   
-    .sidebar.open ~ .main-content .toggle-btn {
-      left: 260px;
+    .sidebar.open ~ .main-content .toggle-btn,
+    .sidebar.open + * .toggle-btn {
+      left: 20px;
     }
   }
   
@@ -350,18 +372,54 @@
   
     .sidebar.closed {
       transform: translateX(-100%);
+      width: 280px;
+    }
+  
+    .toggle-btn {
+      left: 16px !important;
+      top: 16px !important;
+      width: 40px;
+      height: 40px;
+      font-size: 14px;
+    }
+  
+    .logo h2 {
+      font-size: 20px;
+    }
+  
+    .nav-item {
+      padding: 12px 18px;
+      font-size: 14px;
     }
   }
-
-@media print {
+  
+  @media (max-width: 480px) {
+    .sidebar {
+      width: 85%;
+      max-width: 280px;
+    }
+  
+    .toggle-btn {
+      left: 12px !important;
+      top: 12px !important;
+      width: 38px;
+      height: 38px;
+    }
+  }
+  
+  @media print {
     .sidebar {
       display: none !important;
-}
+    }
+  
+    .toggle-btn {
+      display: none !important;
+    }
   
     .main-content {
       margin-left: 0 !important;
       width: 100% !important;
-}
+    }
   
     .layout {
       display: block !important;
@@ -375,4 +433,4 @@
     .receipt-paper * {
       visibility: visible;
     }
-}
+  }

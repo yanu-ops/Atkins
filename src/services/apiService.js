@@ -515,11 +515,183 @@ export const settingsService = {
   }
 };
 
-export default {
-  auth: authService,
-  users: usersService,
-  products: productsService,
-  transactions: transactionsService,
-  reports: reportsService,
-  settings: settingsService
-};
+// Add at the end of apiService.js, before export default
+
+// ============================================
+// BACKUP & RESTORE SERVICE
+// ============================================
+export const backupService = {
+    exportBackup: async () => {
+      try {
+        const { data, error } = await supabase
+          .rpc('export_database_backup');
+        
+        if (error) throw error;
+        
+        const timestamp = new Date().toISOString().split('T')[0];
+        const filename = `atkins-pos-backup-${timestamp}.json`;
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { 
+          type: 'application/json' 
+        });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        return { success: true, filename };
+      } catch (error) {
+        return { success: false, error: handleSupabaseError(error) };
+      }
+    },
+  
+    getBackupStats: async () => {
+      try {
+        const { data, error } = await supabase
+          .rpc('get_export_stats');
+        
+        if (error) throw error;
+        return { success: true, data: data[0] };
+      } catch (error) {
+        return { success: false, error: handleSupabaseError(error) };
+      }
+    }
+  };
+  
+  // ============================================
+  // EXPORT SERVICE
+  // ============================================
+  export const exportService = {
+    exportSalesReport: async (startDate = null, endDate = null) => {
+      try {
+        const { data, error } = await supabase
+          .rpc('export_sales_report', {
+            p_start_date: startDate,
+            p_end_date: endDate
+          });
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+          throw new Error('No data available');
+        }
+        
+        const csv = convertToCSV(data);
+        const dateStr = new Date().toISOString().split('T')[0];
+        const filename = `sales-report-${dateStr}.csv`;
+        
+        downloadCSV(csv, filename);
+        
+        return { success: true, filename, recordCount: data.length };
+      } catch (error) {
+        return { success: false, error: handleSupabaseError(error) };
+      }
+    },
+  
+    exportProducts: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('name, brand, category, price, stock, min_stock_threshold, is_active')
+          .order('name');
+        
+        if (error) throw error;
+        
+        const csv = convertToCSV(data);
+        const filename = `products-${new Date().toISOString().split('T')[0]}.csv`;
+        
+        downloadCSV(csv, filename);
+        
+        return { success: true, filename, recordCount: data.length };
+      } catch (error) {
+        return { success: false, error: handleSupabaseError(error) };
+      }
+    },
+  
+    exportInventory: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('name, category, stock, min_stock_threshold, price')
+          .order('stock', { ascending: true });
+        
+        if (error) throw error;
+        
+        const inventoryData = data.map(item => ({
+          ...item,
+          status: item.stock === 0 ? 'OUT OF STOCK' : 
+                  item.stock <= item.min_stock_threshold ? 'LOW STOCK' : 'IN STOCK',
+          value: (item.stock * item.price).toFixed(2)
+        }));
+        
+        const csv = convertToCSV(inventoryData);
+        const filename = `inventory-${new Date().toISOString().split('T')[0]}.csv`;
+        
+        downloadCSV(csv, filename);
+        
+        return { success: true, filename, recordCount: data.length };
+      } catch (error) {
+        return { success: false, error: handleSupabaseError(error) };
+      }
+    }
+  };
+  
+  // Helper functions
+  function convertToCSV(data) {
+    if (!data || data.length === 0) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvHeader = headers.join(',');
+    
+    const csvRows = data.map(row => {
+      return headers.map(header => {
+        const value = row[header];
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'string') {
+          if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+            return `"${value.replace(/"/g, '""')}"`;
+          }
+          return value;
+        }
+        if (value instanceof Date) return value.toISOString();
+        return value;
+      }).join(',');
+    });
+    
+    return [csvHeader, ...csvRows].join('\n');
+  }
+  
+  function downloadCSV(csvContent, filename) {
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { 
+      type: 'text/csv;charset=utf-8;' 
+    });
+    
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
+  
+  // Update default export
+  export default {
+    auth: authService,
+    users: usersService,
+    products: productsService,
+    transactions: transactionsService,
+    reports: reportsService,
+    settings: settingsService,
+    backup: backupService,
+    export: exportService
+  };
+
+
+
