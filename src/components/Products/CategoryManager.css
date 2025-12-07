@@ -167,7 +167,6 @@
     background: var(--lightest-grey);
   }
   
-  /* Scrollbar styling */
   .categories-list::-webkit-scrollbar {
     width: 8px;
   }
@@ -181,7 +180,6 @@
     background: var(--medium-grey);
   }
   
-  /* Responsive */
   @media (max-width: 768px) {
     .category-manager-content {
       padding: 20px;

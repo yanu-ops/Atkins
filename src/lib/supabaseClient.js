@@ -26,6 +26,27 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
+
+export const setPhilippinesTimezone = async () => {
+  try {
+    const { error } = await supabase.rpc('set_config', {
+      setting_name: 'timezone',
+      new_value: 'Asia/Manila',
+      is_local: false
+    });
+    
+    if (error) {
+      console.warn('Could not set timezone:', error);
+    } else {
+      console.log('✅ Timezone set to Asia/Manila');
+    }
+  } catch (error) {
+    console.warn('Timezone setting not available:', error);
+  }
+};
+    
+setPhilippinesTimezone();
+
 export const handleSupabaseError = (error) => {
   if (!error) return null;
   

@@ -8,7 +8,6 @@
     gap: 30px;
   }
   
-  /* Print Options Section */
   .print-options {
     width: 100%;
     max-width: 600px;
@@ -38,31 +37,63 @@
     align-items: center;
     gap: 16px;
     padding: 20px;
-    background: var(--lightest-grey);
-    border: 3px solid var(--border-color);
+  
+    background: var(--white);
+  
+    border: 3px solid transparent;
     border-radius: var(--border-radius);
+    background-image: 
+      linear-gradient(var(--white), var(--white)),
+      linear-gradient(to right, #000000, #000000); 
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  
     cursor: pointer;
     transition: all var(--transition-base);
     font-family: inherit;
+    color: var(--text-primary);
   }
   
   .size-btn:hover {
-    background: var(--lighter-grey);
-    border-color: var(--primary-dark);
+    background: var(--lightest-grey);
+
+    border: 3px solid transparent;
+    background-image: 
+      linear-gradient(var(--lightest-grey), var(--lightest-grey)),
+      linear-gradient(to right, #000000, #000000);
+  
+    border-color: transparent;
     transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
   }
   
   .size-btn.active {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-grey) 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     border-color: var(--primary-dark);
-    color: var(--white);
     box-shadow: var(--shadow-md);
+  }
+
+  .size-btn.active {
+    color: #ffffff !important;
+  }
+  
+  .size-btn.active .size-icon {
+    color: #ffffff !important;
+  }
+  
+  .size-btn.active .size-info strong {
+    color: #ffffff !important;
+  }
+  
+  .size-btn.active .size-info small {
+    color: #ffffff !important;
+    opacity: 0.9;
   }
   
   .size-icon {
     font-size: 32px;
     flex-shrink: 0;
+    color: inherit;
   }
   
   .size-info {
@@ -70,24 +101,21 @@
     flex-direction: column;
     gap: 4px;
     text-align: left;
+    flex: 1;
   }
   
   .size-info strong {
     font-size: 16px;
     font-weight: 700;
+    color: inherit;
   }
   
   .size-info small {
     font-size: 12px;
+    color: inherit;
     opacity: 0.8;
   }
-  
-  .size-btn.active .size-info strong,
-  .size-btn.active .size-info small {
-    color: var(--white);
-  }
-  
-  /* Receipt Paper - 80mm (Default) */
+
   .receipt-paper {
     background: white;
     width: 100%;
@@ -100,8 +128,7 @@
     line-height: 1.4;
     transition: all var(--transition-slow);
   }
-  
-  /* Receipt Paper - A4 */
+
   .receipt-paper.receipt-a4 {
     max-width: 210mm;
     padding: 20mm 15mm;
@@ -310,11 +337,12 @@
   
   .btn-print {
     background: var(--primary-dark);
-    color: white;
+    color: rgb(255, 255, 255);
   }
-  
+
   .btn-print:hover {
     background: var(--primary-grey);
+    color: rgb(0, 0, 0);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
@@ -323,9 +351,10 @@
     background: var(--accent-green);
     color: white;
   }
-  
+
   .btn-new-transaction:hover {
     background: #059669;
+    color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
   }
@@ -381,8 +410,7 @@
       margin: 0;
     }
   }
-  
-  /* Print Styles - A4 Paper */
+
   @media print {
     body[data-print-size="A4"] {
       width: 210mm;
@@ -429,8 +457,7 @@
       margin: 0;
     }
   }
-  
-  /* Common print styles */
+
   @media print {
     .no-print,
     .receipt-actions,
@@ -451,8 +478,7 @@
       page-break-inside: avoid;
     }
   }
-  
-  /* Mobile Responsiveness */
+
   @media (max-width: 768px) {
     .receipt-container {
       padding: 30px 16px;

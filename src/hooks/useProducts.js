@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/apiService';
 
-
 export function useProducts(activeOnly = false) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

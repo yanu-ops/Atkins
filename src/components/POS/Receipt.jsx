@@ -6,7 +6,7 @@ import './Receipt.css';
 export default function Receipt({ receipt, onNewTransaction }) {
   const [settings, setSettings] = useState(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
-  const [printSize, setPrintSize] = useState('80mm'); // 80mm or A4
+  const [printSize, setPrintSize] = useState('80mm'); 
 
   useEffect(() => {
     loadSettings();
@@ -29,7 +29,6 @@ export default function Receipt({ receipt, onNewTransaction }) {
   };
 
   const handlePrint = () => {
-    // Set the print size attribute on body before printing
     document.body.setAttribute('data-print-size', printSize);
     
     window.focus();
@@ -48,7 +47,6 @@ export default function Receipt({ receipt, onNewTransaction }) {
 
   return (
     <div className="receipt-container">
-      {/* Print Size Selector */}
       <div className="print-options no-print">
         <div className="print-size-selector">
           <label>Print Size:</label>

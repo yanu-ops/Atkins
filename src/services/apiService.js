@@ -1,8 +1,4 @@
 import { supabase, handleSupabaseError } from '../lib/supabaseClient';
-
-// ============================================
-// AUTHENTICATION SERVICE
-// ============================================
 export const authService = {
   login: async (username, password) => {
     try {
@@ -62,9 +58,6 @@ export const authService = {
   }
 };
 
-// ============================================
-// USERS SERVICE
-// ============================================
 export const usersService = {
   getAll: async () => {
     try {
@@ -228,9 +221,6 @@ export const usersService = {
   }
 };
 
-// ============================================
-// PRODUCTS SERVICE
-// ============================================
 export const productsService = {
   getAll: async () => {
     try {
@@ -334,9 +324,6 @@ export const productsService = {
   }
 };
 
-// ============================================
-// TRANSACTIONS SERVICE
-// ============================================
 export const transactionsService = {
   getAll: async (limit = 100) => {
     try {
@@ -429,9 +416,6 @@ export const transactionsService = {
   }
 };
 
-// ============================================
-// REPORTS SERVICE
-// ============================================
 export const reportsService = {
   getDashboardStats: async () => {
     try {
@@ -477,9 +461,6 @@ export const reportsService = {
   }
 };
 
-// ============================================
-// SETTINGS SERVICE
-// ============================================
 export const settingsService = {
   get: async () => {
     try {
@@ -530,9 +511,6 @@ export const settingsService = {
   }
 };
 
-// ============================================
-// BACKUP & RESTORE SERVICE
-// ============================================
 export const backupService = {
   exportBackup: async () => {
     try {
@@ -576,13 +554,10 @@ export const backupService = {
 
   restoreBackup: async (backupData) => {
     try {
-      // Validate backup data
       if (!backupData || !backupData.version || !backupData.backup_date) {
         throw new Error('Invalid backup file format');
       }
 
-      // In a production environment, this should be done server-side
-      // For now, we'll provide a basic implementation that requires manual steps
 
       console.log('Backup data validated:', {
         version: backupData.version,
@@ -591,8 +566,6 @@ export const backupService = {
         transactionsCount: backupData.transactions?.length || 0
       });
 
-      // Note: Full restore requires database-level operations
-      // This should be implemented as a Supabase function
       
       return { 
         success: false, 
@@ -604,9 +577,6 @@ export const backupService = {
   }
 };
 
-// ============================================
-// EXPORT SERVICE (CSV)
-// ============================================
 export const exportService = {
   exportSalesReport: async (startDate = null, endDate = null) => {
     try {
@@ -682,9 +652,6 @@ export const exportService = {
   }
 };
 
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
 function convertToCSV(data) {
   if (!data || data.length === 0) return '';
   
@@ -725,9 +692,6 @@ function downloadCSV(csvContent, filename) {
   window.URL.revokeObjectURL(url);
 }
 
-// ============================================
-// DEFAULT EXPORT
-// ============================================
 export default {
   auth: authService,
   users: usersService,

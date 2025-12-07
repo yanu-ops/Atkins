@@ -24,7 +24,7 @@ export default function Login() {
       navigate('/dashboard');
     } else {
       setError(result.error);
-    }
+    }           
   };
 
   return (
@@ -34,12 +34,17 @@ export default function Login() {
           <div className="login-icon">
             <img 
               src="/atkins.jpg" 
-              alt="POS System Logo" 
-              style={{ width: '250%', height: '100%', objectFit: 'cover', borderRadius: '20px' }}
+              alt="Atkins Guitar Store Logo" 
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover', 
+                borderRadius: '20px' 
+              }}
             />
           </div>
           <h1>Atkins Guitar Store</h1>
-          <p>Point of Sale Management</p>
+          <p>Point of Sale Management System</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -50,7 +55,9 @@ export default function Login() {
           )}
 
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">
+              Username
+            </label>
             <input
               id="username"
               type="text"
@@ -64,7 +71,9 @@ export default function Login() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">
+              Password
+            </label>
             <input
               id="password"
               type="password"
@@ -81,13 +90,11 @@ export default function Login() {
             className="btn btn-primary btn-block"
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? '🔄 Logging in...' : '🔐 Login'}
           </button>
-
         </form>
-      </div>
 
-      <div className="login-background"></div>
+      </div>
     </div>
   );
 }

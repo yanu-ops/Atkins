@@ -79,7 +79,6 @@
     max-width: 100%;
   }
   
-  /* If number is too long, make it smaller */
   .stat-value-backup:has(+ *) {
     font-size: clamp(18px, 4vw, 24px);
   }
@@ -348,7 +347,6 @@
     font-weight: 700;
   }
   
-  /* Responsive */
   @media (max-width: 768px) {
     .backup-container {
       padding: 20px;

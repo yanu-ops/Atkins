@@ -5,36 +5,38 @@
 }
 
 :root {
-  --primary-dark: #1a1a1a;
-  --primary-grey: #2d2d2d;
-  --secondary-grey: #4a4a4a;
-  --medium-grey: #6b6b6b;
-  --light-grey: #d1d5db;
-  --lighter-grey: #e5e7eb;
+  --primary-dark: #000000;
+  --primary-black: #1a1a1a;
+  --secondary-black: #2d2d2d;
+  --medium-grey: #404040;
+  --light-grey: #666666;
+  --lighter-grey: #d1d5db;
   --lightest-grey: #f3f4f6;
   --white: #ffffff;
-
-  --accent-blue: #3b82f6;
+  --off-white: #fafafa;
+  --border-color: #e5e7eb;
   --accent-green: #10b981;
   --accent-red: #ef4444;
   --accent-yellow: #f59e0b;
+  --accent-blue: #3b82f6;
   --accent-purple: #8b5cf6;
-  
   --text-primary: #111827;
   --text-secondary: #6b7280;
   --text-light: #9ca3af;
-
+  --text-on-dark: #ffffff;
+  --gradient-primary: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  --gradient-black: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  --gradient-subtle: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-  --border-color: #e5e7eb;
+  --shadow-black: 0 8px 20px rgba(0, 0, 0, 0.4);
+  --shadow-black-lg: 0 12px 30px rgba(0, 0, 0, 0.5);
   --border-radius-sm: 6px;
   --border-radius: 10px;
   --border-radius-lg: 14px;
-  
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -45,7 +47,7 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--lightest-grey);
+  background: #ffffff;
   color: var(--text-primary);
   line-height: 1.5;
   font-size: 15px;
@@ -71,7 +73,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--medium-grey);
+  background: var(--primary-dark);
 }
 
 ::selection {
@@ -84,11 +86,9 @@ body {
 }
 
 *:focus-visible {
-  outline: 2px solid var(--accent-blue);
+  outline: 2px solid var(--primary-dark);
   outline-offset: 2px;
 }
-
-/* Add to the end of index.css, replacing existing @media print */
 
 @media print {
   * {
@@ -156,7 +156,6 @@ body {
   }
 }
 
-/* Enhanced Mobile Responsiveness */
 @media (max-width: 1024px) {
   body {
     font-size: 14px;
@@ -242,5 +241,47 @@ body {
   .modal-content {
     border-radius: var(--border-radius);
     max-height: 100vh;
+  }
+}
+
+.stat-card,
+.stat-card-backup,
+.stat-card-report,
+.stat-card-small {
+  overflow: hidden !important;
+}
+
+.stat-value,
+.stat-value-backup,
+.stat-card-report h2,
+.stat-card-small .stat-value {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: none !important;
+  max-width: 100% !important;
+  font-size: clamp(18px, 3vw, 28px) !important;
+  line-height: 1.2 !important;
+  display: block !important;
+}
+
+.stat-details,
+.stat-details-backup,
+.stat-card-report > div {
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+@media (max-width: 768px) {
+  .stat-icon,
+  .stat-icon-backup {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 28px !important;
+  }
+  
+  .stat-value,
+  .stat-value-backup {
+    font-size: clamp(16px, 4vw, 22px) !important;
   }
 }

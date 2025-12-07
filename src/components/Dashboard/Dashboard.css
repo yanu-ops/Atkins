@@ -9,7 +9,6 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  
 
   .dashboard-header {
     display: flex;
@@ -31,7 +30,6 @@
     color: var(--text-secondary);
     font-size: 16px;
   }
-  
 
   .stats-grid {
     display: grid;
@@ -180,7 +178,6 @@
   .stat-card-small .stat-value.danger {
     color: var(--accent-red);
   }
-  
 
   .section-card {
     background: var(--white);
@@ -295,7 +292,6 @@
     font-size: 14px;
     font-weight: 500;
   }
-  
 
   .action-grid {
     display: grid;
@@ -322,7 +318,7 @@
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary-grey) 100%);
+    background: var(--primary-dark);
     transform: scaleX(0);
     transition: transform var(--transition-base);
   }
@@ -362,14 +358,12 @@
     font-weight: 500;
   }
   
- 
   .loading {
     text-align: center;
     padding: 100px 20px;
     font-size: 16px;
     color: var(--text-secondary);
   }
-  
 
   @media (max-width: 768px) {
     .dashboard {
@@ -407,5 +401,44 @@
   
     .stat-value {
       font-size: 28px;
+    }
+  }
+
+  .stat-card {
+    overflow: hidden;
+  }
+  
+  .stat-details {
+    min-width: 0;
+    overflow: hidden;
+    flex: 1;
+  }
+  
+  .stat-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1.1;
+  }
+  
+  .stat-card-small .stat-value {
+    font-size: clamp(20px, 3vw, 30px);
+  }
+  
+  @media (max-width: 768px) {
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      font-size: 28px;
+    }
+    
+    .stat-value {
+      font-size: clamp(20px, 4vw, 28px);
+    }
+    
+    .stat-card-small .stat-value {
+      font-size: clamp(18px, 4vw, 24px);
     }
   }

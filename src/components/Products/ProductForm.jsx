@@ -48,12 +48,10 @@ export default function ProductForm({ product, onClose }) {
       
       if (error) throw error;
       
-      // Extract just the category names
       const categoryNames = (data || []).map(cat => cat.name);
       setCategories(categoryNames);
     } catch (error) {
       console.error('Error loading categories:', error);
-      // Fallback to default categories
       setCategories([
         'Electric Guitars',
         'Acoustic Guitars',

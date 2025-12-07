@@ -39,7 +39,6 @@ export default function BackupRestore() {
     const history = JSON.parse(localStorage.getItem('backup_history') || '[]');
     history.unshift(newBackup);
     
-    // Keep only last 10 backups in history
     const trimmedHistory = history.slice(0, 10);
     localStorage.setItem('backup_history', JSON.stringify(trimmedHistory));
     setBackupHistory(trimmedHistory);
@@ -107,21 +106,17 @@ export default function BackupRestore() {
     setRestoring(true);
 
     try {
-      // First, create backup of current data
       await api.backup.exportBackup();
 
-      // Read the backup file
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
           const backupData = JSON.parse(e.target.result);
           
-          // Validate backup structure
           if (!backupData.version || !backupData.backup_date) {
             throw new Error('Invalid backup file format');
           }
 
-          // Restore data using API
           const result = await api.backup.restoreBackup(backupData);
           
           if (result.success) {
@@ -132,7 +127,6 @@ export default function BackupRestore() {
               'The page will reload now.'
             );
             
-            // Reload page to reflect changes
             window.location.reload();
           } else {
             throw new Error(result.error);
@@ -212,7 +206,6 @@ export default function BackupRestore() {
         </div>
       </div>
 
-      {/* Backup Statistics */}
       <div className="backup-stats-grid">
         <div className="stat-card-backup">
           <div className="stat-icon-backup">📦</div>
@@ -247,7 +240,6 @@ export default function BackupRestore() {
         </div>
       </div>
 
-      {/* Full Database Backup */}
       <div className="section-card">
         <div className="section-header-backup">
           <div>
@@ -292,7 +284,6 @@ export default function BackupRestore() {
         </div>
       </div>
 
-      {/* CSV Exports */}
       <div className="section-card">
         <div className="section-header-backup">
           <div>
@@ -343,7 +334,6 @@ export default function BackupRestore() {
         </div>
       </div>
 
-      {/* Backup History */}
       <div className="section-card">
         <div className="section-header-backup">
           <div>
@@ -379,7 +369,6 @@ export default function BackupRestore() {
         )}
       </div>
 
-      {/* Backup Tips */}
       <div className="section-card backup-tips">
         <h3>💡 Backup Best Practices</h3>
         <ul>

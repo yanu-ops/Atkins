@@ -15,7 +15,6 @@ export default function Layout() {
       const mobile = window.innerWidth <= 1024;
       setIsMobile(mobile);
       
-      // On mobile, start with sidebar closed
       if (mobile) {
         setSidebarOpen(false);
       } else {
@@ -24,7 +23,7 @@ export default function Layout() {
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); // Check on mount
+    handleResize();
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -52,7 +51,7 @@ export default function Layout() {
 
   return (
     <div className="layout">
-      {/* Mobile Overlay */}
+
       {isMobile && sidebarOpen && (
         <div 
           className="mobile-overlay active" 
@@ -60,7 +59,6 @@ export default function Layout() {
         />
       )}
 
-      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <div className="logo">
@@ -68,14 +66,17 @@ export default function Layout() {
               <img 
                 src="/atkins.jpg" 
                 alt="POS Logo" 
-                style={{ width: '300%', height: '110%', objectFit: 'cover', borderRadius: '12px' }}
+                className="logo-img"
               />
             </div>
+
             {sidebarOpen && (
-              <h2 style={{ marginLeft: '30px', whiteSpace: 'nowrap' }}>ATKINS POS</h2>
+              <div className="logo-text">
+                <h2>ATKINS GUITAR STORE</h2>
+              </div>
             )}
           </div>
-          {/* Desktop Toggle Button - Inside Sidebar Header */}
+
           {!isMobile && (
             <button onClick={toggleSidebar} className="toggle-btn">
               {sidebarOpen ? '◀' : '▶'}
@@ -84,7 +85,9 @@ export default function Layout() {
         </div>
 
         <div className="user-info">
-          <div className="user-avatar">{user?.name.charAt(0).toUpperCase()}</div>
+          <div className="user-avatar">
+            {user?.name?.charAt(0)?.toUpperCase?.()}
+          </div>
           {sidebarOpen && (
             <div className="user-details">
               <p className="user-name">{user?.name}</p>
@@ -173,11 +176,10 @@ export default function Layout() {
                 className={`nav-item ${isActive('/backup')}`} 
                 title="Backup & Restore"
                 onClick={closeSidebarOnMobile}
-            >
+              >
                 <span className="nav-icon">💾</span>
                 {sidebarOpen && <span className="nav-text">Backup & Restore</span>}
-            </Link>
-
+              </Link>
             </>
           )}
         </nav>
@@ -190,9 +192,8 @@ export default function Layout() {
         </div>
       </aside>
 
-      {/* Mobile Toggle Button - Outside Sidebar */}
       {isMobile && (
-        <button 
+        <button     
           onClick={toggleSidebar} 
           className="toggle-btn"
         >
@@ -200,7 +201,6 @@ export default function Layout() {
         </button>
       )}
 
-      {/* Main Content */}
       <main className={`main-content ${sidebarOpen ? '' : 'expanded'}`}>
         <Outlet />
       </main>

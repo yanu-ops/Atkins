@@ -133,3 +133,31 @@
     font-size: 13px;
     font-weight: 700;
   }
+
+.stat-card-report {
+    overflow: hidden;
+  }
+  
+  .stat-card-report > div {
+    min-width: 0;
+    overflow: hidden;
+    flex: 1;
+  }
+  
+  .stat-card-report h2 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    font-size: clamp(22px, 3vw, 32px);
+  }
+  
+  @media (max-width: 768px) {
+    .stat-card-report .stat-icon {
+      font-size: 36px;
+    }
+    
+    .stat-card-report h2 {
+      font-size: clamp(18px, 4vw, 26px);
+    }
+  }

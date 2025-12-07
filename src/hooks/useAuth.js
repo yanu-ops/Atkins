@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/apiService';
 
-
-
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);

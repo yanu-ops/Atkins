@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: var(--lightest-grey);
+  background: #f9fafb;
   gap: 16px;
 }
 
@@ -12,7 +12,7 @@
   content: '';
   width: 48px;
   height: 48px;
-  border: 4px solid var(--lighter-grey);
+  border: 4px solid var(--medium-grey);
   border-top-color: var(--primary-dark);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -36,6 +36,7 @@
   font-size: 15px;
 }
 
+/* BUTTON STYLES WITH ORANGE THEME */
 .btn {
   padding: 11px 20px;
   border: none;
@@ -78,29 +79,36 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-grey) 100%);
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
   color: var(--white);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 2px solid transparent;
+  font-weight: 700;
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+  filter: brightness(1.15);
 }
 
 .btn-primary:active:not(:disabled) {
   transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .btn-secondary {
   background: var(--white);
-  color: var(--text-primary);
+  color: var(--primary-dark);
   border: 2px solid var(--border-color);
+  font-weight: 600;
 }
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--lightest-grey);
-  border-color: var(--light-grey);
+  border-color: var(--primary-dark);
+  color: var(--primary-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-light {
@@ -111,6 +119,7 @@
 
 .btn-light:hover:not(:disabled) {
   background: var(--white);
+  border-color: var(--primary-dark);
 }
 
 .btn-success {
@@ -131,6 +140,17 @@
 
 .btn-danger:hover:not(:disabled) {
   background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-warning {
+  background: var(--accent-yellow);
+  color: var(--white);
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: #d97706;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -213,9 +233,9 @@
 }
 
 .alert-info {
-  background: #eff6ff;
-  color: #1e40af;
-  border-left-color: var(--accent-blue);
+  background: #fff5e6;
+  color: #000000;
+  border-left-color: var(--primary-dark);
 }
 
 .form-group {
@@ -248,7 +268,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: var(--primary-dark);
-  box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
 }
 
 .form-group input::placeholder,
@@ -268,7 +288,7 @@
 }
 
 .table thead {
-  background: var(--lightest-grey);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
 .table th {
@@ -276,10 +296,10 @@
   text-align: left;
   font-weight: 600;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--white);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--primary-dark);
 }
 
 .table th:first-child {
@@ -302,7 +322,7 @@
 }
 
 .table tbody tr:hover {
-  background: var(--lightest-grey);
+  background: #fff5e6;
 }
 
 .table tbody tr:last-child td {
@@ -320,8 +340,9 @@
 }
 
 .badge-primary {
-  background: var(--lightest-grey);
+  background: #fff5e6;
   color: var(--primary-dark);
+  border: 1px solid var(--light-grey);
 }
 
 .badge-success {
@@ -354,7 +375,7 @@
 .page-header h1 {
   margin: 0 0 4px 0;
   font-size: 32px;
-  color: var(--text-primary);
+  color: var(--primary-dark);
   font-weight: 700;
   letter-spacing: -0.5px;
 }
@@ -417,18 +438,18 @@
   font-size: 13px;
   font-weight: 700;
   z-index: 9999;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   transition: all 0.3s ease;
   pointer-events: none;
 }
 
 .connection-status.online {
-  background: #10b981;
+  background: var(--accent-green);
   color: white;
 }
 
 .connection-status.offline {
-  background: #ef4444;
+  background: var(--accent-red);
   color: white;
   animation: pulse 2s ease-in-out infinite;
 }
